@@ -1,0 +1,32 @@
+{
+  "name": "Card Ledger",
+  "short_name": "Card Ledger",
+  "description": "Portfolio management, goals, valuation, trade logging, and community tools for sports card collectors.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c0f0f",
+  "theme_color": "#06402b",
+  "categories": ["finance", "sports", "productivity"],
+  "icons": [
+    {
+      "src": "./assets/app-icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/app-icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/app-icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,2716 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Card Ledger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="icon" href="./assets/generated-brand/card-ledger-monogram-transparent.png" />
+    <link rel="apple-touch-icon" href="./assets/app-icons/apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="application-name" content="Card Ledger" />
+    <meta name="apple-mobile-web-app-title" content="Card Ledger" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#06402b" />
+    <meta name="description" content="Portfolio management, goals, valuation, trade logging, and community tools for sports card collectors." />
+    <link rel="stylesheet" href="./styles.css?v=88" />
+    <link rel="stylesheet" href="./themes.css?v=38" />
+    <link rel="stylesheet" href="./advanced.css?v=37" />
+  </head>
+  <body>
+    <aside class="asset-sidebar" aria-label="Asset manager sections">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-expanded="false" aria-label="Expand sidebar">
+        <span class="material-symbols-outlined" aria-hidden="true">menu_open</span>
+      </button>
+      <button class="side-brand side-brand-button" type="button" data-page-button="landing" aria-label="Open landing page">
+        <img src="./assets/stitch/collectors-league-logo.png" alt="" />
+        <div>
+          <strong>Asset Manager</strong>
+          <span class="side-tier-label">Regular Tier</span>
+          <small class="brand-slogan">Every card, clearly valued.</small>
+        </div>
+      </button>
+      <nav class="side-nav" aria-label="Asset pages">
+        <button class="side-nav-item active" type="button" data-page-button="portfolio">
+          <span class="material-symbols-outlined" data-fallback="◧" aria-hidden="true">account_balance_wallet</span>
+          <span>Portfolio</span>
+        </button>
+        <button class="side-nav-item" type="button" data-page-button="collection" data-member-required="true">
+          <span class="material-symbols-outlined" data-fallback="▦" aria-hidden="true">grid_view</span>
+          <span>Collection</span>
+          <span class="side-lock material-symbols-outlined" aria-hidden="true">lock</span>
+        </button>
+        <button class="side-nav-item" type="button" data-page-button="diy">
+          <span class="material-symbols-outlined" data-fallback="✦" aria-hidden="true">palette</span>
+          <span>DIY Cards</span>
+        </button>
+        <button class="side-nav-item" type="button" data-page-button="condition" data-member-required="true">
+          <span class="material-symbols-outlined" data-fallback="✓" aria-hidden="true">fact_check</span>
+          <span>Condition Check</span>
+          <span class="side-lock material-symbols-outlined" aria-hidden="true">lock</span>
+        </button>
+        <button class="side-nav-item" type="button" data-page-button="goals" data-member-required="true">
+          <span class="material-symbols-outlined" data-fallback="★" aria-hidden="true">stars</span>
+          <span>Goals</span>
+          <span class="side-lock material-symbols-outlined" aria-hidden="true">lock</span>
+        </button>
+        <button class="side-nav-item" type="button" data-page-button="market">
+          <span class="material-symbols-outlined" data-fallback="↗" aria-hidden="true">trending_up</span>
+          <span>Market</span>
+        </button>
+        <button class="side-nav-item" type="button" data-page-button="community" data-member-required="true">
+          <span class="material-symbols-outlined" data-fallback="◎" aria-hidden="true">groups</span>
+          <span>Community</span>
+          <span class="side-lock material-symbols-outlined" aria-hidden="true">lock</span>
+        </button>
+        <button class="side-nav-item" type="button" data-page-button="trade" data-member-required="true">
+          <span class="material-symbols-outlined" data-fallback="⇄" aria-hidden="true">swap_horiz</span>
+          <span>Trade</span>
+          <span class="side-lock material-symbols-outlined" aria-hidden="true">lock</span>
+        </button>
+        <button class="side-nav-item" type="button" data-page-button="account">
+          <span class="material-symbols-outlined" data-fallback="●" aria-hidden="true">manage_accounts</span>
+          <span>Account</span>
+        </button>
+      </nav>
+      <button class="side-add-card" type="button" data-page-button="collection" data-member-required="true">
+        <span class="material-symbols-outlined" data-fallback="+" aria-hidden="true">add</span>
+        <span>Add New Card</span>
+        <span class="side-lock material-symbols-outlined" aria-hidden="true">lock</span>
+      </button>
+      <button class="side-profile" type="button" data-page-button="account" aria-label="My Profile">
+        <span class="side-profile-avatar"></span>
+        <div>
+          <strong>My Profile</strong>
+          <small>Asset value synced</small>
+        </div>
+      </button>
+    </aside>
+    <header class="app-header">
+      <nav class="topbar" aria-label="Primary">
+        <div class="brand">
+          <img class="brand-logo" src="./assets/generated-brand/card-ledger-monogram-transparent.png" alt="" aria-hidden="true" />
+          <span>Card Ledger</span>
+        </div>
+        <nav class="landing-nav" aria-label="Landing sections">
+          <button class="landing-nav-link active" type="button" data-page-button="portfolio">Portfolio</button>
+          <button class="landing-nav-link" type="button" data-page-button="trade" data-member-required="true">AI Trade Builder</button>
+          <button class="landing-nav-link" type="button" data-page-button="market">Market Insights</button>
+          <button class="landing-nav-link" type="button" data-action="show-membership">Pricing</button>
+        </nav>
+        <div class="global-search" role="search">
+          <label class="sr-only" for="globalSearch">Search everything</label>
+          <img class="global-search-icon" src="./assets/generated-brand/category-search-transparent.png" alt="" aria-hidden="true" />
+          <input id="globalSearch" autocomplete="off" placeholder="Search cards, goals, trades, posts..." />
+          <button id="clearGlobalSearch" class="global-search-clear hidden" type="button" aria-label="Clear search">x</button>
+          <div id="globalSearchResults" class="global-search-results hidden" role="listbox"></div>
+        </div>
+        <div class="toolbar">
+          <button id="openGlobalScanner" class="global-scan-button" type="button" title="Identify card" aria-label="Identify card" aria-haspopup="dialog" aria-controls="globalScanDrawer" aria-expanded="false" data-member-required="true">
+            <span class="material-symbols-outlined" aria-hidden="true">document_scanner</span>
+            <span>Identify card</span>
+          </button>
+          <label class="theme-picker" title="Appearance">
+            <span class="material-symbols-outlined" aria-hidden="true">palette</span>
+            <span class="sr-only">Appearance</span>
+            <select id="themeSelect" aria-label="Appearance">
+              <option value="emerald">Emerald Vault</option>
+              <option value="midnight">Midnight Ink</option>
+              <option value="crimson">Crimson Archive</option>
+              <option value="titanium">Titanium</option>
+            </select>
+          </label>
+          <label class="language-picker" title="Language">
+            <span class="sr-only">Language</span>
+            <select id="languageSelect" aria-label="Language">
+              <option value="en">English</option>
+              <option value="zh-CN">中文</option>
+              <option value="ja">日本語</option>
+              <option value="ko">한국어</option>
+              <option value="es">Español</option>
+            </select>
+          </label>
+          <div class="landing-top-actions">
+            <button class="landing-login-link" type="button" data-action="show-landing-auth">Log In</button>
+            <button class="download-icon-button" type="button" data-action="download-app" title="Download Card Ledger" aria-label="Download Card Ledger">
+              <span class="material-symbols-outlined" aria-hidden="true">download</span>
+            </button>
+            <button class="landing-get-started" type="button" data-action="show-landing-auth">Get Started</button>
+          </div>
+          <button class="icon-button" id="exportJson" type="button" title="Export JSON" aria-label="Export JSON">
+            <span aria-hidden="true">↓</span>
+          </button>
+          <button class="icon-button" id="exportCsv" type="button" title="Export CSV" aria-label="Export CSV">
+            <span aria-hidden="true">CSV</span>
+          </button>
+          <label class="icon-button file-button" title="Import JSON" aria-label="Import JSON">
+            <span aria-hidden="true">↑</span>
+            <input id="importJson" type="file" accept="application/json,.json" />
+          </label>
+          <details id="accountMenu" class="account-menu">
+            <summary class="account-menu-button">
+              <span id="accountInitials">ME</span>
+              <span id="accountMenuName">Login</span>
+            </summary>
+            <div id="accountSettingsPanel" class="account-popover">
+              <div class="section-heading">
+                <h2 id="accountTitle">Account</h2>
+                <div class="account-heading-actions">
+                  <button class="download-icon-button" type="button" data-action="download-app" title="Download Card Ledger" aria-label="Download Card Ledger">
+                    <span class="material-symbols-outlined" aria-hidden="true">download</span>
+                  </button>
+                  <span id="accountRoleBadge" class="role-badge">Guest</span>
+                </div>
+              </div>
+              <div class="auth-method-tabs" data-guest-auth data-auth-scope="account" aria-label="Login method">
+                <button class="active" type="button" data-auth-mode="email"><span class="material-symbols-outlined" aria-hidden="true">mail</span>Email</button>
+                <button type="button" data-auth-mode="phone"><span class="material-symbols-outlined" aria-hidden="true">smartphone</span>Phone</button>
+              </div>
+              <div class="auth-grid" data-guest-auth data-email-auth="account">
+                <form id="loginForm" class="login-form">
+                  <h3>Login</h3>
+                  <label>
+                    Email
+                    <input id="loginEmail" type="email" required placeholder="you@example.com" />
+                  </label>
+                  <label>
+                    Password
+                    <input id="loginPassword" type="password" required placeholder="Password" />
+                  </label>
+                  <button class="primary-button" type="submit">Login</button>
+                </form>
+                <form id="signupForm" class="login-form">
+                  <h3>Sign Up</h3>
+                  <label>
+                    Name
+                    <input id="signupName" required placeholder="Collector name" />
+                  </label>
+                  <label>
+                    Email
+                    <input id="signupEmail" type="email" required placeholder="you@example.com" />
+                  </label>
+                  <label>
+                    Password
+                    <input id="signupPassword" type="password" required minlength="4" placeholder="Create password" />
+                  </label>
+                  <button class="ghost-button" type="submit">Create Account</button>
+                </form>
+              </div>
+              <form id="phoneLoginForm" class="phone-auth-form hidden" data-guest-auth data-phone-auth="account">
+                <div>
+                  <h3>Phone login</h3>
+                  <p>Use an international number. Mainland China numbers begin with +86.</p>
+                </div>
+                <label>
+                  Phone number
+                  <input id="phoneLoginNumber" type="tel" inputmode="tel" autocomplete="tel" placeholder="+86 138 0000 0000" />
+                </label>
+                <button id="sendPhoneOtp" class="ghost-button" type="button">Send code</button>
+                <label class="phone-code-field hidden">
+                  6-digit code
+                  <input id="phoneLoginCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" />
+                </label>
+                <button class="primary-button phone-verify-button hidden" type="submit">Verify and sign in</button>
+                <span class="inline-status phone-auth-status" role="status" aria-live="polite"></span>
+              </form>
+              <div class="social-auth-block" data-guest-auth>
+                <span>Or continue with</span>
+                <div class="social-auth-buttons">
+                  <button class="social-auth-button wechat" type="button" data-auth-provider="wechat" data-auth-purpose="login"><strong>微</strong><span>WeChat</span></button>
+                  <button class="social-auth-button qq" type="button" data-auth-provider="qq" data-auth-purpose="login"><strong>Q</strong><span>QQ</span></button>
+                </div>
+                <p class="auth-provider-note">Secure login is handled by Supabase. Card Ledger never stores social passwords.</p>
+              </div>
+              <div class="form-actions">
+                <button id="logoutButton" class="ghost-button" type="button">Logout</button>
+              </div>
+              <div id="memberAccessNotice" class="member-access-notice"></div>
+              <section id="accountSecuritySettings" class="privacy-panel integration-settings-panel" aria-labelledby="supabaseTitle">
+                <div class="section-heading compact-heading">
+                  <h3 id="supabaseTitle">Supabase Login Storage</h3>
+                  <button id="saveSupabaseSettings" class="ghost-button compact-button" type="button">Save</button>
+                </div>
+                <label>
+                  Project URL
+                  <input id="supabaseUrl" placeholder="https://your-project.supabase.co" />
+                </label>
+                <label>
+                  Anon public key
+                  <input id="supabaseAnonKey" type="password" placeholder="Configured automatically" />
+                </label>
+                <p class="integration-note">Signup automatically creates a secure Supabase account and stores your collector profile.</p>
+                <span id="supabaseStatus" class="inline-status"></span>
+              </section>
+              <section id="accountIdentitySettings" class="privacy-panel linked-identities-panel" aria-labelledby="linkedIdentityTitle">
+                <div class="section-heading compact-heading">
+                  <div>
+                    <h3 id="linkedIdentityTitle">Connected login methods</h3>
+                    <p>Sign in to the same Card Ledger account with any connected method.</p>
+                  </div>
+                  <button id="refreshAuthIdentities" class="icon-button" type="button" title="Refresh login methods" aria-label="Refresh login methods"><span class="material-symbols-outlined" aria-hidden="true">refresh</span></button>
+                </div>
+                <div class="linked-identity-list">
+                  <article class="linked-identity-card" data-identity-provider="wechat">
+                    <span class="identity-mark wechat">微</span>
+                    <div><strong>WeChat</strong><small data-identity-status>Not connected</small></div>
+                    <button class="ghost-button compact-button" type="button" data-auth-provider="wechat" data-auth-purpose="link">Connect</button>
+                  </article>
+                  <article class="linked-identity-card" data-identity-provider="qq">
+                    <span class="identity-mark qq">Q</span>
+                    <div><strong>QQ</strong><small data-identity-status>Not connected</small></div>
+                    <button class="ghost-button compact-button" type="button" data-auth-provider="qq" data-auth-purpose="link">Connect</button>
+                  </article>
+                  <article class="linked-identity-card" data-identity-provider="phone">
+                    <span class="identity-mark phone"><span class="material-symbols-outlined" aria-hidden="true">smartphone</span></span>
+                    <div><strong>Phone</strong><small data-identity-status>Not connected</small></div>
+                    <button id="showLinkPhone" class="ghost-button compact-button" type="button">Connect</button>
+                  </article>
+                </div>
+                <form id="linkPhoneForm" class="phone-link-form hidden">
+                  <label>Phone number<input id="linkPhoneNumber" type="tel" inputmode="tel" autocomplete="tel" placeholder="+86 138 0000 0000" /></label>
+                  <button id="sendLinkPhoneOtp" class="ghost-button" type="button">Send code</button>
+                  <label class="link-phone-code-field hidden">6-digit code<input id="linkPhoneCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" /></label>
+                  <button class="primary-button link-phone-verify-button hidden" type="submit">Verify and connect</button>
+                  <span id="linkPhoneStatus" class="inline-status" role="status" aria-live="polite"></span>
+                </form>
+                <p id="socialAuthSetupNote" class="auth-provider-note">WeChat and QQ require custom OAuth providers to be enabled in Supabase.</p>
+              </section>
+              <section id="accountPrivacySettings" class="privacy-panel" aria-labelledby="privacyTitle">
+                <h3 id="privacyTitle">Collection Privacy</h3>
+                <label>
+                  Who can view my collection
+                  <select id="privacySelect">
+                    <option value="private">Private</option>
+                    <option value="friends">Friends only</option>
+                    <option value="public">Public</option>
+                  </select>
+                </label>
+              </section>
+              <form id="profileSettingsForm" class="profile-settings">
+                <h3>Profile Settings</h3>
+                <label>
+                  Profile Photo
+                  <input id="profilePhoto" type="file" accept="image/*" />
+                </label>
+                <div class="avatar-preset-panel">
+                  <span>Avatar Presets</span>
+                  <div class="avatar-preset-grid" aria-label="Avatar presets">
+                    <button type="button" data-avatar-preset="./assets/generated-brand/avatar-option-1.png"><img src="./assets/generated-brand/avatar-option-1.png" alt="Avatar option 1" /></button>
+                    <button type="button" data-avatar-preset="./assets/generated-brand/avatar-option-2.png"><img src="./assets/generated-brand/avatar-option-2.png" alt="Avatar option 2" /></button>
+                    <button type="button" data-avatar-preset="./assets/generated-brand/avatar-option-3.png"><img src="./assets/generated-brand/avatar-option-3.png" alt="Avatar option 3" /></button>
+                    <button type="button" data-avatar-preset="./assets/generated-brand/avatar-option-4.png"><img src="./assets/generated-brand/avatar-option-4.png" alt="Avatar option 4" /></button>
+                    <button type="button" data-avatar-preset="./assets/generated-brand/avatar-option-5.png"><img src="./assets/generated-brand/avatar-option-5.png" alt="Avatar option 5" /></button>
+                    <button type="button" data-avatar-preset="./assets/generated-brand/avatar-option-6.png"><img src="./assets/generated-brand/avatar-option-6.png" alt="Avatar option 6" /></button>
+                    <button type="button" data-avatar-preset="./assets/generated-brand/avatar-option-7.png"><img src="./assets/generated-brand/avatar-option-7.png" alt="Avatar option 7" /></button>
+                    <button type="button" data-avatar-preset="./assets/generated-brand/avatar-option-8.png"><img src="./assets/generated-brand/avatar-option-8.png" alt="Avatar option 8" /></button>
+                  </div>
+                </div>
+                <label>
+                  Description
+                  <textarea id="profileDescription" rows="3" placeholder="What do you collect?"></textarea>
+                </label>
+                <div class="field-grid">
+                  <label>
+                    Age
+                    <input id="profileAge" type="number" min="0" max="120" placeholder="28" />
+                  </label>
+                  <label>
+                    Location
+                    <input id="profileLocation" placeholder="Shanghai, China" />
+                  </label>
+                </div>
+                <button class="primary-button" type="submit">Save Profile</button>
+              </form>
+              <div id="accountOverviewSettings" class="account-summary">
+                <div>
+                  <small>Signed In</small>
+                  <strong id="accountName">Guest</strong>
+                </div>
+                <div>
+                  <small>Collector Score</small>
+                  <strong id="collectorScore">0</strong>
+                </div>
+                <div>
+                  <small>Badges</small>
+                  <strong id="badgeCount">0</strong>
+                </div>
+              </div>
+              <div id="accountSocialSettings" class="account-social-stats">
+                <button type="button" data-profile-jump="friends">
+                  <strong id="friendCount">0</strong>
+                  <small>Friends</small>
+                </button>
+                <button type="button" data-profile-jump="following">
+                  <strong id="followingCount">0</strong>
+                  <small>Following</small>
+                </button>
+                <button type="button" data-profile-jump="followers">
+                  <strong id="followerCount">0</strong>
+                  <small>Followers</small>
+                </button>
+              </div>
+              <div id="badgeList" class="badge-list"></div>
+              <details id="scoreDetails" class="score-details">
+                <summary>Score details</summary>
+                <dl id="scoreBreakdown" class="score-breakdown"></dl>
+              </details>
+              <form id="adminScoreForm" class="admin-panel hidden">
+                <h3>Admin Score Rules</h3>
+                <div class="field-grid">
+                  <label>
+                    Points per card
+                    <input id="scorePerCard" type="number" min="0" step="1" />
+                  </label>
+                  <label>
+                    Points per RMB 1,000 value
+                    <input id="scorePerThousand" type="number" min="0" step="1" />
+                  </label>
+                  <label>
+                    Points per complete goal
+                    <input id="scorePerCompleteGoal" type="number" min="0" step="1" />
+                  </label>
+                  <label>
+                    Points per trade
+                    <input id="scorePerTrade" type="number" min="0" step="1" />
+                  </label>
+                </div>
+                <button class="primary-button" type="submit">Save Rules</button>
+              </form>
+            </div>
+          </details>
+        </div>
+      </nav>
+      <nav class="directory" aria-label="Page tools">
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="entry" checked />
+          <span>Add</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="sync" checked />
+          <span>Imports</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="photoImport" checked />
+          <span>Photo</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="pricing" checked />
+          <span>Values</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="portfolio" checked />
+          <span>Performance</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="goalAssistant" checked />
+          <span>Missing</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="collectors" checked />
+          <span>People</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="community" checked />
+          <span>Community</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="scan" disabled />
+          <span>Scan Paused</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="collection" checked />
+          <span>Collection</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="goals" checked />
+          <span>Goals</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="alerts" checked />
+          <span>Alerts</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="market" checked />
+          <span>Sales</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="trades" checked />
+          <span>Trades</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="dealRoom" checked />
+          <span>Deals</span>
+        </label>
+        <label class="category-toggle">
+          <input type="checkbox" data-panel-toggle="aiTrade" checked />
+          <span>AI</span>
+        </label>
+      </nav>
+
+      <section class="hero" aria-labelledby="pageTitle">
+        <canvas id="landingHeroCanvas" class="landing-hero-canvas" aria-hidden="true"></canvas>
+        <div class="landing-intro-title" aria-hidden="true">Card Ledger</div>
+        <div class="hero-copy">
+          <p class="landing-badge"><span></span>Now tracking over RMB 8.2M in assets</p>
+          <p class="landing-slogan">Every card, clearly valued.</p>
+          <h1 id="pageTitle">Manage Your Collection Like an <em>Asset Class</em></h1>
+          <p class="lede">The ultimate dashboard for elite sports card collectors. Track value, trade with AI precision, and dominate the market.</p>
+          <div class="landing-actions">
+            <button class="hero-button primary-hero-button" type="button" data-action="show-landing-auth">Start Your Portfolio <span class="cta-ring" aria-hidden="true"></span></button>
+            <button class="hero-button secondary-hero-button" type="button" data-action="show-landing-auth"><span class="cta-ring" aria-hidden="true"></span> Watch Demo</button>
+          </div>
+          <div class="landing-stats" aria-label="Platform summary">
+            <div>
+              <span>99.8%</span>
+              <small>Data Accuracy</small>
+            </div>
+            <div>
+              <span>150k+</span>
+              <small>Active Portfolios</small>
+            </div>
+            <div>
+              <span>24/7</span>
+              <small>Market Sync</small>
+            </div>
+          </div>
+          <div class="landing-command-strip" aria-label="Core workflow">
+            <span>Record</span>
+            <span>Value</span>
+            <span>Trade</span>
+            <span>Complete Goals</span>
+          </div>
+          <div class="landing-description-grid" aria-label="Card Ledger features">
+            <div>
+              <strong>Portfolio-grade records</strong>
+              <small>Manual fixed-format card entry, purchase history, cost basis, values, and profit tracking.</small>
+            </div>
+            <div>
+              <strong>Goal visibility</strong>
+              <small>See what you own, what is missing, and which cards should trigger marketplace alerts.</small>
+            </div>
+            <div>
+              <strong>Trading workspace</strong>
+              <small>Log deals, compare both sides, use AI trade ideas, and keep a permanent before-trade record.</small>
+            </div>
+          </div>
+        </div>
+        <div class="landing-preview">
+          <div id="landingCardStage" class="landing-card-stage" role="img" aria-label="Interactive 3D sports card. Drag to spin the card.">
+            <canvas id="landingCardCanvas"></canvas>
+            <div class="card-image-controls" aria-label="3D card image controls">
+              <span class="card-image-title">Customize display card</span>
+              <label class="card-format-field card-name-field">
+                Card name
+                <input id="landingCardName" type="text" maxlength="54" value="Card Ledger Showcase" aria-label="Landing card name" />
+              </label>
+              <label class="card-format-field">
+                Holder
+                <select id="landingCardFormat" aria-label="Landing card holder">
+                  <option value="raw">Raw card</option>
+                  <option value="psa">PSA graded</option>
+                  <option value="bgs">BGS graded</option>
+                </select>
+              </label>
+              <label class="card-format-field">
+                Grade
+                <input id="landingCardGrade" type="text" maxlength="4" value="10" aria-label="Landing card grade" />
+              </label>
+              <button class="card-upload-button" type="button" data-card-upload="front">Upload front</button>
+              <button class="card-upload-button" type="button" data-card-upload="back">Upload back</button>
+              <button id="resetLandingCardImages" type="button">Reset</button>
+              <span class="card-drop-hint">or drop images here</span>
+              <input id="landingCardFrontUpload" type="file" accept="image/*" />
+              <input id="landingCardBackUpload" type="file" accept="image/*" />
+            </div>
+            <div class="card-stage-hint">Drag to rotate 360</div>
+          </div>
+          <div class="roi-card"><span></span><strong>ROI This Month</strong><b>+12.4%</b></div>
+          <div class="preview-float-card preview-float-card-one">
+            <small>AI Trade Score</small>
+            <strong>84</strong>
+          </div>
+          <div class="preview-float-card preview-float-card-two">
+            <small>Missing Alerts</small>
+            <strong>18</strong>
+          </div>
+        </div>
+        <aside id="landingAuthCard" class="landing-auth-card hidden" aria-label="Login or sign up">
+          <div class="section-heading">
+            <h2>Start Managing</h2>
+            <span class="role-badge">Secure Access</span>
+          </div>
+          <div class="landing-plan-options" aria-label="Membership plans">
+            <article>
+              <span>Monthly</span>
+              <strong>RMB 29.9</strong>
+              <small>per month</small>
+              <button class="ghost-button compact-button" type="button" data-select-plan="monthly">Choose monthly</button>
+            </article>
+            <article class="recommended-plan">
+              <span>Yearly</span>
+              <strong>RMB 299.9</strong>
+              <small>per year · save RMB 58.9</small>
+              <button class="primary-button compact-button" type="button" data-select-plan="yearly">Choose yearly</button>
+            </article>
+          </div>
+          <p class="billing-disclosure">Plan selection unlocks the prototype. Payment collection will activate after a billing provider is connected.</p>
+          <div class="auth-method-tabs" data-auth-scope="landing" aria-label="Login method">
+            <button class="active" type="button" data-auth-mode="email"><span class="material-symbols-outlined" aria-hidden="true">mail</span>Email</button>
+            <button type="button" data-auth-mode="phone"><span class="material-symbols-outlined" aria-hidden="true">smartphone</span>Phone</button>
+          </div>
+          <form id="landingLoginForm" class="login-form" data-email-auth="landing">
+            <h3>Login</h3>
+            <label>
+              Email
+              <input id="landingLoginEmail" type="email" required placeholder="you@example.com" />
+            </label>
+            <label>
+              Password
+              <input id="landingLoginPassword" type="password" required placeholder="Password" />
+            </label>
+            <button class="primary-button" type="submit">Login</button>
+          </form>
+          <form id="landingSignupForm" class="login-form landing-signup-form" data-email-auth="landing">
+            <h3>Sign Up</h3>
+            <label>
+              Name
+              <input id="landingSignupName" required placeholder="Collector name" />
+            </label>
+            <label>
+              Email
+              <input id="landingSignupEmail" type="email" required placeholder="you@example.com" />
+            </label>
+            <label>
+              Password
+              <input id="landingSignupPassword" type="password" required minlength="4" placeholder="Create password" />
+            </label>
+            <button class="ghost-button" type="submit">Create Account</button>
+          </form>
+          <form id="landingPhoneLoginForm" class="phone-auth-form hidden" data-phone-auth="landing">
+            <div>
+              <h3>Phone login</h3>
+              <p>Use an international number. Mainland China numbers begin with +86.</p>
+            </div>
+            <label>Phone number<input id="landingPhoneLoginNumber" type="tel" inputmode="tel" autocomplete="tel" placeholder="+86 138 0000 0000" /></label>
+            <button id="landingSendPhoneOtp" class="ghost-button" type="button">Send code</button>
+            <label class="phone-code-field hidden">6-digit code<input id="landingPhoneLoginCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" /></label>
+            <button class="primary-button phone-verify-button hidden" type="submit">Verify and sign in</button>
+            <span class="inline-status phone-auth-status" role="status" aria-live="polite"></span>
+          </form>
+          <div class="social-auth-block">
+            <span>Or continue with</span>
+            <div class="social-auth-buttons">
+              <button class="social-auth-button wechat" type="button" data-auth-provider="wechat" data-auth-purpose="login"><strong>微</strong><span>WeChat</span></button>
+              <button class="social-auth-button qq" type="button" data-auth-provider="qq" data-auth-purpose="login"><strong>Q</strong><span>QQ</span></button>
+            </div>
+            <p class="auth-provider-note">Secure login is handled by Supabase. Card Ledger never stores social passwords.</p>
+          </div>
+        </aside>
+        <div class="trusted-strip" aria-hidden="true">
+          <span>Trusted by the industry's elite</span>
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </section>
+    </header>
+
+    <div id="globalScanBackdrop" class="global-scan-backdrop hidden" aria-hidden="true"></div>
+    <aside id="globalScanDrawer" class="global-scan-drawer hidden" role="dialog" aria-modal="true" aria-labelledby="globalScanTitle" aria-describedby="globalScanDescription">
+      <header class="global-scan-drawer-header">
+        <div>
+          <span class="global-scan-kicker">Quick scan</span>
+          <h2 id="globalScanTitle">Identify the exact card</h2>
+          <p id="globalScanDescription">Card Ledger reads slab labels and card text, checks known card identities, then ranks the closest matches for you to confirm.</p>
+        </div>
+        <button id="closeGlobalScanner" class="global-scan-close" type="button" aria-label="Close card scanner">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
+      </header>
+      <div class="global-scan-body">
+        <button id="globalScanChoose" class="global-scan-upload" type="button">
+          <span class="material-symbols-outlined" aria-hidden="true">add_a_photo</span>
+          <span><strong>Take or upload the card</strong><small>Select the front and optional back together. Keep the full card, label, and printed text sharp.</small></span>
+        </button>
+        <input id="globalScanFile" class="sr-only" type="file" accept="image/*" capture="environment" multiple />
+        <div id="globalScanEmpty" class="global-scan-empty">
+          <span class="material-symbols-outlined" aria-hidden="true">center_focus_strong</span>
+          <p>Your result will appear here without leaving the page.</p>
+        </div>
+        <section id="globalScanResult" class="global-scan-result hidden" aria-live="polite">
+          <img id="globalScanPreview" alt="Card being identified" />
+          <div class="global-scan-result-copy">
+            <span id="globalScanConfidence" class="global-scan-confidence">--</span>
+            <h3 id="globalScanResultTitle">Card result</h3>
+            <p id="globalScanResultMeta">Review the card identity in Add Card.</p>
+            <div id="globalScanResultDetails" class="global-scan-result-details"></div>
+          </div>
+        </section>
+        <p id="globalScanStatus" class="global-scan-status" role="status" aria-live="polite">Ready to identify a card.</p>
+      </div>
+      <footer class="global-scan-actions">
+        <button id="globalScanAgain" class="ghost-button" type="button">Scan another</button>
+        <button id="globalScanReview" class="primary-button" type="button" disabled>Review card in Add Card</button>
+      </footer>
+    </aside>
+
+    <main id="workspace" class="layout">
+      <canvas id="pageWebglCanvas" class="page-webgl-canvas" aria-hidden="true"></canvas>
+      <nav id="marketViewToolbar" class="market-view-toolbar" aria-label="Market workspace sections">
+        <div class="market-view-title">
+          <span class="material-symbols-outlined" aria-hidden="true">monitoring</span>
+          <span><strong>Market Workspace</strong><small>Keep one research task in view</small></span>
+        </div>
+        <div class="market-view-tabs" role="tablist" aria-label="Market workspace view">
+          <button class="active" type="button" role="tab" aria-selected="true" data-market-view="values"><span class="material-symbols-outlined" aria-hidden="true">price_check</span>Values</button>
+          <button type="button" role="tab" aria-selected="false" data-market-view="sales"><span class="material-symbols-outlined" aria-hidden="true">query_stats</span>Indices &amp; Sales</button>
+          <button type="button" role="tab" aria-selected="false" data-market-view="split"><span class="material-symbols-outlined" aria-hidden="true">view_column_2</span>Split</button>
+        </div>
+        <button id="toggleMarketContext" class="market-context-toggle" type="button" aria-pressed="false">
+          <span class="material-symbols-outlined" aria-hidden="true">notes</span>
+          <span>Show notes</span>
+        </button>
+      </nav>
+      <nav id="collectionViewToolbar" class="focus-view-toolbar" aria-label="Collection workspace sections">
+        <div class="focus-view-title">
+          <span class="material-symbols-outlined" aria-hidden="true">collections_bookmark</span>
+          <span><strong>Collection Workspace</strong><small>Open only the tool you need</small></span>
+        </div>
+        <div class="focus-view-tabs" role="tablist" aria-label="Collection workspace view">
+          <button class="active" type="button" role="tab" aria-selected="true" data-focus-page="collection" data-focus-view="browse"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span>Browse</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="add"><span class="material-symbols-outlined" aria-hidden="true">add_card</span>Add Card</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="imports"><span class="material-symbols-outlined" aria-hidden="true">cloud_download</span>Imports</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="photos"><span class="material-symbols-outlined" aria-hidden="true">photo_library</span>Photos</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="people"><span class="material-symbols-outlined" aria-hidden="true">group</span>People</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="all"><span class="material-symbols-outlined" aria-hidden="true">view_agenda</span>All</button>
+        </div>
+      </nav>
+      <nav id="goalViewToolbar" class="focus-view-toolbar" aria-label="Goal workspace sections">
+        <div class="focus-view-title">
+          <span class="material-symbols-outlined" aria-hidden="true">track_changes</span>
+          <span><strong>Goal Workspace</strong><small>Move between plans without page-length scrolling</small></span>
+        </div>
+        <div class="focus-view-tabs" role="tablist" aria-label="Goal workspace view">
+          <button class="active" type="button" role="tab" aria-selected="true" data-focus-page="goals" data-focus-view="overview"><span class="material-symbols-outlined" aria-hidden="true">flag</span>Overview</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="goals" data-focus-view="missing"><span class="material-symbols-outlined" aria-hidden="true">search_check</span>Missing</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="goals" data-focus-view="alerts"><span class="material-symbols-outlined" aria-hidden="true">notifications_active</span>Alerts</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="goals" data-focus-view="all"><span class="material-symbols-outlined" aria-hidden="true">view_agenda</span>All</button>
+        </div>
+      </nav>
+      <nav id="tradeViewToolbar" class="focus-view-toolbar" aria-label="Trade workspace sections">
+        <div class="focus-view-title">
+          <span class="material-symbols-outlined" aria-hidden="true">handshake</span>
+          <span><strong>Trade Workspace</strong><small>Build, negotiate, or review one step at a time</small></span>
+        </div>
+        <div class="focus-view-tabs" role="tablist" aria-label="Trade workspace view">
+          <button class="active" type="button" role="tab" aria-selected="true" data-focus-page="trade" data-focus-view="builder"><span class="material-symbols-outlined" aria-hidden="true">smart_toy</span>AI Builder</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="trade" data-focus-view="deals"><span class="material-symbols-outlined" aria-hidden="true">forum</span>Deals</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="trade" data-focus-view="history"><span class="material-symbols-outlined" aria-hidden="true">history</span>History</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="trade" data-focus-view="all"><span class="material-symbols-outlined" aria-hidden="true">view_agenda</span>All</button>
+        </div>
+      </nav>
+      <section id="accountArea" class="account-page workspace-panel hidden" data-panel="account" aria-labelledby="accountPageTitle">
+        <div class="account-page-hero">
+          <div class="account-avatar-3d" aria-label="3D collector avatar">
+            <span class="avatar-orbit avatar-orbit-one" aria-hidden="true"></span>
+            <span class="avatar-orbit avatar-orbit-two" aria-hidden="true"></span>
+            <span id="accountPageAvatar" class="account-page-avatar">ME</span>
+            <span class="avatar-status-dot" aria-hidden="true"></span>
+          </div>
+          <div class="account-page-identity">
+            <p class="eyebrow">Collector Identity</p>
+            <h1 id="accountPageTitle">Account Settings</h1>
+            <p id="accountPageDescription">Manage your profile, privacy, login, marketplace access, and collector score.</p>
+            <div class="account-identity-meta">
+              <span id="accountPageEmail">Guest account</span>
+              <span id="accountPageLocation">Location not set</span>
+              <span><strong id="accountPageScore">0</strong> Collector Score</span>
+            </div>
+          </div>
+        </div>
+        <nav class="account-settings-directory" aria-label="Account settings sections">
+          <button type="button" data-account-target="accountOverviewSettings"><span class="material-symbols-outlined" aria-hidden="true">dashboard</span>Overview</button>
+          <button type="button" data-account-target="profileSettingsForm"><span class="material-symbols-outlined" aria-hidden="true">person</span>Profile</button>
+          <button type="button" data-account-target="accountSocialSettings"><span class="material-symbols-outlined" aria-hidden="true">group</span>Social</button>
+          <button type="button" data-account-target="accountPrivacySettings"><span class="material-symbols-outlined" aria-hidden="true">shield_lock</span>Privacy</button>
+          <button type="button" data-account-target="accountSecuritySettings"><span class="material-symbols-outlined" aria-hidden="true">key</span>Login & Storage</button>
+          <button type="button" data-account-target="accountIdentitySettings"><span class="material-symbols-outlined" aria-hidden="true">link</span>Connected Accounts</button>
+          <button type="button" data-account-target="membershipPlanPanel"><span class="material-symbols-outlined" aria-hidden="true">diamond</span>Membership</button>
+          <button type="button" data-account-target="badgeList"><span class="material-symbols-outlined" aria-hidden="true">workspace_premium</span>Badges & Score</button>
+        </nav>
+        <div id="accountSettingsMount" class="account-settings-mount"></div>
+        <section id="membershipPlanPanel" class="membership-plan-panel account-extension-panel" aria-labelledby="membershipPlanTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Membership</p>
+              <h2 id="membershipPlanTitle">Choose how you collect</h2>
+              <p>Regular includes the essential ledger. Premium removes limits from planning and collection tools.</p>
+            </div>
+            <span id="currentPlanBadge" class="role-badge">Regular</span>
+          </div>
+          <div class="membership-grid">
+            <article class="membership-card regular-membership">
+              <div><span>Regular</span><strong>Free</strong><small>Essential collection records</small></div>
+              <ul><li>3 collecting goals</li><li>5 AI trade generations monthly</li><li>1 portfolio space</li><li>20 watchlist cards</li><li>3 saved views and 6 display uploads</li></ul>
+              <button id="selectRegularPlan" class="ghost-button" type="button">Use regular</button>
+            </article>
+            <article class="membership-card premium-membership">
+              <div><span>Premium Monthly</span><strong>RMB 29.9</strong><small>per month</small></div>
+              <ul><li>Unlimited goals and AI trades</li><li>Unlimited portfolios and watchlist</li><li>Unlimited saved views and display uploads</li><li>Premium badge and future priority tools</li></ul>
+              <button class="primary-button" type="button" data-select-plan="monthly">Choose monthly</button>
+            </article>
+            <article class="membership-card premium-membership recommended-plan">
+              <div><span>Premium Yearly</span><strong>RMB 299.9</strong><small>per year · save RMB 58.9</small></div>
+              <ul><li>Everything in Premium Monthly</li><li>Two months of savings across a year</li><li>One renewal instead of twelve</li><li>Unlimited access on web and installed app</li></ul>
+              <button class="primary-button" type="button" data-select-plan="yearly">Choose yearly</button>
+            </article>
+          </div>
+          <div class="membership-status-row">
+            <div><small>Current access</small><strong id="membershipStatusText">Regular plan</strong></div>
+            <div><small>AI trades this month</small><strong id="aiTradeUsageText">0 / 5</strong></div>
+            <div><small>Collecting goals</small><strong id="goalUsageText">0 / 3</strong></div>
+          </div>
+          <p class="billing-disclosure">Billing is not connected yet. Choosing a paid plan enables the premium prototype without collecting payment.</p>
+        </section>
+        <section id="portfolioManager" class="account-extension-panel" aria-labelledby="portfolioManagerTitle">
+          <div class="section-heading compact-heading"><div><h2 id="portfolioManagerTitle">Portfolio spaces</h2><p>Separate personal, company, client, consignment, and vault holdings.</p></div><span id="activePortfolioBadge" class="role-badge">Personal</span></div>
+          <form id="portfolioForm" class="inline-form">
+            <label>Name<input id="portfolioName" required placeholder="Private collection" /></label>
+            <label>Type<select id="portfolioType"><option value="personal">Personal</option><option value="company">Company</option><option value="client">Client</option><option value="consignment">Consignment</option><option value="vault">Vault</option></select></label>
+            <button class="primary-button" type="submit">Create space</button>
+          </form>
+          <div id="portfolioSpaceList" class="portfolio-space-list"></div>
+        </section>
+        <section id="securityCenter" class="account-extension-panel" aria-labelledby="securityCenterTitle">
+          <div class="section-heading compact-heading"><div><h2 id="securityCenterTitle">Security center</h2><p>MFA, sessions, recovery preparation, and private document protection.</p></div><span id="securityLevelBadge" class="role-badge">Standard</span></div>
+          <div class="security-grid">
+            <article>
+              <h3>Authenticator MFA</h3>
+              <p>Protect this account with a time-based code from an authenticator app.</p>
+              <div id="mfaEnrollment" class="security-action-stack"><button id="startMfaEnrollment" class="primary-button compact-button" type="button">Set up MFA</button><div id="mfaQrArea" class="mfa-qr-area hidden"></div><input id="mfaVerifyCode" class="hidden" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" /><button id="verifyMfaEnrollment" class="ghost-button compact-button hidden" type="button">Verify and enable</button><span id="mfaStatus" class="inline-status"></span></div>
+            </article>
+            <article>
+              <h3>Active devices</h3>
+              <div id="deviceSessionList" class="operation-list"></div>
+              <p class="integration-note">Current-device controls work now. Remote session revocation requires the reserved secure server endpoint.</p>
+            </article>
+            <article>
+              <h3>Recovery kit</h3>
+              <p>Generate one-time local recovery references. Supabase account recovery activation remains server-reserved.</p>
+              <button id="generateRecoveryCodes" class="ghost-button compact-button" type="button">Generate codes</button>
+              <div id="recoveryCodeList" class="recovery-code-list"></div>
+            </article>
+            <article>
+              <h3>Encrypted private documents</h3>
+              <form id="privateDocumentForm" class="security-action-stack"><input id="privateDocumentFile" type="file" required /><input id="privateDocumentPassphrase" type="password" minlength="8" required placeholder="Encryption passphrase" /><button class="primary-button compact-button" type="submit">Encrypt and store</button></form>
+              <div id="privateDocumentList" class="operation-list"></div>
+            </article>
+          </div>
+          <div class="reserved-feature compact-reserved"><span>Server reserved</span><p>Remote-device revocation, account-level recovery-code verification, and high-assurance document backup activate after the Supabase connector is reauthenticated and its Edge Function is deployed.</p></div>
+        </section>
+      </section>
+      <section id="installAppArea" class="install-app-panel workspace-panel hidden" data-panel="installApp" aria-labelledby="installAppTitle">
+        <div>
+          <p class="eyebrow">App Version</p>
+          <h2 id="installAppTitle">Install Card Ledger</h2>
+          <p>Use Card Ledger as a standalone app with offline access to the saved workspace shell.</p>
+        </div>
+        <button id="installAppButton" class="primary-button" type="button">Install App</button>
+      </section>
+
+      <section id="scanArea" class="scan-panel workspace-panel" data-panel="scan" aria-labelledby="scanTitle">
+        <div class="section-heading">
+          <h2 id="scanTitle">Camera Scan Paused</h2>
+          <button id="stopScanCamera" class="ghost-button compact-button" type="button">Stop</button>
+        </div>
+        <div class="scan-stage">
+          <video id="scanVideo" playsinline muted></video>
+          <canvas id="scanCanvas" class="hidden"></canvas>
+          <img id="scanPreview" class="hidden" alt="Captured card scan preview" />
+        </div>
+        <label class="scan-device-field">
+          Camera
+          <select id="scanCameraSelect">
+            <option value="">Mac front camera</option>
+          </select>
+        </label>
+        <div class="form-actions">
+          <button id="startScanCamera" class="primary-button" type="button" disabled>Start Camera</button>
+          <button id="captureScanCard" class="ghost-button" type="button" disabled>Capture + Insert</button>
+        </div>
+        <div id="scanStatus" class="trade-empty">Camera scanning is paused while macOS camera access is unavailable.</div>
+      </section>
+
+      <section id="guidedCaptureArea" class="guided-capture-panel workspace-panel" data-panel="guidedCapture" aria-labelledby="guidedCaptureTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Beginner Route</p>
+            <h2 id="guidedCaptureTitle">Add a card in three steps</h2>
+            <p>Photograph the card, choose the closest catalog match, then confirm only the details you know.</p>
+          </div>
+          <label class="mode-switch">
+            <input id="starterModeToggle" type="checkbox" checked />
+            <span>Starter mode</span>
+          </label>
+        </div>
+        <div class="capture-stepper" aria-label="Card capture progress">
+          <button type="button" class="active" data-capture-step="1"><span>1</span>Photograph</button>
+          <button type="button" data-capture-step="2"><span>2</span>Choose match</button>
+          <button type="button" data-capture-step="3"><span>3</span>Confirm</button>
+        </div>
+        <div class="capture-workspace">
+          <section class="capture-step active" data-capture-panel="1">
+            <label class="capture-photo-drop">
+              <input id="guidedCardPhoto" type="file" accept="image/*" capture="environment" />
+              <img id="guidedCardPhotoPreview" class="hidden" alt="Card photograph preview" />
+              <span class="material-symbols-outlined" aria-hidden="true">add_a_photo</span>
+              <strong>Take or upload a clear card photo</strong>
+              <small>Keep the full border and printed text visible.</small>
+            </label>
+            <div class="tutorial-strip">
+              <strong>Try a guided example</strong>
+              <div id="tutorialSamples" class="tutorial-samples"></div>
+            </div>
+          </section>
+          <section class="capture-step" data-capture-panel="2">
+            <div class="capture-search-row">
+              <label>What can you read on the card?
+                <input id="guidedMatchSearch" placeholder="Player, brand, set, year, or card number" />
+              </label>
+              <button id="findGuidedMatches" class="primary-button" type="button">Find matches</button>
+            </div>
+            <div id="guidedMatchList" class="guided-match-list"></div>
+          </section>
+          <section class="capture-step" data-capture-panel="3">
+            <form id="guidedConfirmForm">
+              <div class="field-grid">
+                <label>Year<input id="guidedYear" list="cardYearOptions" required /></label>
+                <label>Brand<input id="guidedBrand" list="cardBrandOptions" placeholder="Topps" required /></label>
+                <label>Set<input id="guidedSet" list="guidedSetOptions" placeholder="Chrome" required /></label>
+                <label>Player<input id="guidedPlayer" list="cardPlayerOptions" required /></label>
+                <label>Card number<input id="guidedNumber" /></label>
+                <label>Sport<select id="guidedSport"><option>Basketball</option><option>Baseball</option><option>Football</option><option>Soccer</option><option>Hockey</option><option>PTCG</option><option>Other</option></select></label>
+                <label>Condition<select id="guidedCondition"><option>Raw</option><option>Near Mint</option><option>Excellent</option><option>Graded</option></select></label>
+              </div>
+              <details class="advanced-entry-fields">
+                <summary>Advanced details</summary>
+                <div class="field-grid">
+                  <label>Type<input id="guidedType" list="cardTypeOptions" /></label>
+                  <label>Parallel / variant<input id="guidedParallel" list="cardParallelOptions" /></label>
+                  <label>Grade<input id="guidedGrade" placeholder="PSA 10" /></label>
+                  <label>Serial number<input id="guidedSerial" placeholder="23/99" /></label>
+                  <label>Storage location<input id="guidedLocation" placeholder="Binder 1 / Box A" /></label>
+                </div>
+              </details>
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Confirm and add</button>
+                <button id="restartGuidedCapture" class="ghost-button" type="button">Start over</button>
+                <span id="guidedCaptureStatus" class="inline-status" aria-live="polite"></span>
+              </div>
+            </form>
+          </section>
+        </div>
+        <details class="collector-glossary">
+          <summary>New collector glossary</summary>
+          <div class="glossary-grid" id="collectorGlossary"></div>
+        </details>
+        <aside class="value-education-note">
+          <span class="material-symbols-outlined" aria-hidden="true">school</span>
+          <div><strong>Sold listing or asking price?</strong><p>A sold listing records an agreed transaction. An asking price is only what a seller hopes to receive. Future marketplace connections will keep them separate; Card Ledger will not treat asking prices as sales.</p></div>
+        </aside>
+      </section>
+
+      <section id="entryArea" class="entry-panel workspace-panel" data-panel="entry" aria-labelledby="formTitle">
+        <div class="entry-tabs" role="tablist" aria-label="Entry mode">
+          <button id="cardEntryTab" class="entry-tab active" type="button" role="tab" aria-selected="true" aria-controls="cardEntryPanel">
+            Add Card
+          </button>
+          <button id="tradeEntryTab" class="entry-tab" type="button" role="tab" aria-selected="false" aria-controls="tradeEntryPanel">
+            Trade
+          </button>
+        </div>
+
+        <div id="cardEntryPanel" class="entry-mode-panel" role="tabpanel" aria-labelledby="cardEntryTab">
+          <section class="player-scan-strip" aria-labelledby="playerScanTitle">
+            <div class="player-scan-intro">
+              <span class="material-symbols-outlined" aria-hidden="true">document_scanner</span>
+              <div>
+                <strong id="playerScanTitle">Identify the exact card from a photo</strong>
+                <small>Reads labels and card text first, then checks the card catalog and visual references. You choose the closest match before anything is applied.</small>
+              </div>
+            </div>
+            <div class="player-scan-workspace">
+              <label class="player-scan-trigger">
+                <span class="material-symbols-outlined" aria-hidden="true">add_a_photo</span>
+                <span>Upload front + optional back</span>
+                <input id="playerScanFile" type="file" accept="image/*" capture="environment" multiple />
+              </label>
+              <img id="playerScanPreview" class="player-scan-preview hidden" alt="Card photo being scanned for its player" />
+              <div class="player-scan-result">
+                <label>
+                  Closest card match
+                  <select id="playerScanMatch" disabled>
+                    <option value="">Scan a photo first</option>
+                  </select>
+                </label>
+                <button id="applyPlayerScan" class="primary-button compact-button" type="button" disabled>Use this card</button>
+              </div>
+            </div>
+            <section id="playerScanIdentity" class="player-scan-identity hidden" aria-labelledby="playerScanIdentityTitle">
+              <div class="player-scan-identity-heading">
+                <div>
+                  <strong id="playerScanIdentityTitle">Confirm detected card</strong>
+                  <small id="playerScanSource">Review every field before applying the selected identity.</small>
+                </div>
+                <span id="playerScanConfidence" class="player-scan-confidence">--</span>
+              </div>
+              <div class="player-scan-player-summary">
+                <span class="material-symbols-outlined" aria-hidden="true">person_search</span>
+                <div>
+                  <small>Selected card identity</small>
+                  <strong id="playerScanSelectedName">No player selected</strong>
+                  <span id="playerScanSelectedSport">Sport not confirmed</span>
+                </div>
+              </div>
+              <div id="playerScanCardDetails" class="player-scan-card-details"></div>
+              <details class="player-scan-evidence">
+                <summary>Text read from photo</summary>
+                <pre id="playerScanEvidence">No text read yet.</pre>
+              </details>
+            </section>
+            <p id="playerScanStatus" class="player-scan-status" role="status" aria-live="polite">Ready to identify a card.</p>
+          </section>
+          <div class="section-heading">
+            <h2 id="formTitle">Add a Card</h2>
+            <button id="resetForm" class="ghost-button" type="button">Clear</button>
+          </div>
+          <form id="cardForm">
+            <input type="hidden" id="cardId" />
+            <section class="beginner-entry-guide" aria-labelledby="beginnerGuideTitle">
+              <div class="beginner-guide-heading">
+                <span class="material-symbols-outlined" aria-hidden="true">school</span>
+                <div>
+                  <strong id="beginnerGuideTitle">Your first card, one step at a time</strong>
+                  <small>Only five basics are needed. Everything else can be added later.</small>
+                </div>
+                <span id="beginnerGuideCount" class="beginner-guide-count">0 / 5 ready</span>
+              </div>
+              <div class="beginner-guide-steps" aria-label="Card entry progress">
+                <div class="active" data-beginner-step="identify">
+                  <span>1</span>
+                  <div><strong>Identify</strong><small>Scan or choose a player</small></div>
+                </div>
+                <div data-beginner-step="describe">
+                  <span>2</span>
+                  <div><strong>Describe</strong><small>Sport, year, brand and set</small></div>
+                </div>
+                <div data-beginner-step="save">
+                  <span>3</span>
+                  <div><strong>Save</strong><small>Review and add it</small></div>
+                </div>
+              </div>
+              <div class="beginner-guide-progress" aria-hidden="true"><i id="beginnerGuideBar"></i></div>
+              <div class="beginner-guide-footer">
+                <p id="beginnerGuideStatus" role="status" aria-live="polite">Start with a photo, or choose the sport and year below.</p>
+                <details>
+                  <summary>What can I leave blank?</summary>
+                  <p>Type, parallel, number, condition, grade, price, location and notes are optional. You can edit them later.</p>
+                </details>
+              </div>
+            </section>
+            <div class="starter-entry-toolbar">
+              <span>Quick entry keeps only the essential fields visible.</span>
+              <button id="toggleAdvancedEntry" class="ghost-button compact-button" type="button">Show advanced details</button>
+            </div>
+            <div class="field-grid">
+              <label>
+                Sport
+                <select id="sport" name="sport" required>
+                  <option value="">Choose</option>
+                  <option>Baseball</option>
+                  <option>Basketball</option>
+                  <option>Football</option>
+                  <option>Hockey</option>
+                  <option>Soccer</option>
+                  <option>PTCG</option>
+                  <option>Racing</option>
+                  <option>Golf</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label>
+                Year
+                <input id="year" name="year" inputmode="numeric" list="cardYearOptions" placeholder="2024 or 2024-25" required />
+              </label>
+              <label class="catalog-dependent-field">
+                Brand
+                <select id="brand" name="brand" required disabled>
+                  <option value="">Choose sport and year first</option>
+                </select>
+                <input id="brandCustom" class="catalog-custom-input hidden" placeholder="Enter a brand not listed" />
+              </label>
+              <label class="catalog-dependent-field">
+                Set
+                <select id="setName" name="setName" required disabled>
+                  <option value="">Choose a brand first</option>
+                </select>
+                <input id="setNameCustom" class="catalog-custom-input hidden" placeholder="Enter a set not listed" />
+                <small id="setCatalogStatus" class="catalog-field-note">Choose sport and year, then select a brand.</small>
+              </label>
+              <label class="catalog-dependent-field">
+                Player
+                <select id="player" name="player" required disabled>
+                  <option value="">Choose a set first</option>
+                </select>
+                <input id="playerCustom" class="catalog-custom-input hidden" placeholder="Enter a player or character not listed" />
+              </label>
+              <label>
+                Type
+                <input id="cardType" name="cardType" list="cardTypeOptions" placeholder="Base, Rookie, Auto, Insert" />
+              </label>
+              <label>
+                Parallel / Variant
+                <input id="parallel" name="parallel" list="cardParallelOptions" placeholder="Refractor" />
+              </label>
+              <label>
+                Number
+                <input id="cardNumber" name="cardNumber" placeholder="17" />
+              </label>
+              <label>
+                Condition
+                <select id="condition" name="condition">
+                  <option>Raw</option>
+                  <option>Near Mint</option>
+                  <option>Excellent</option>
+                  <option>Very Good</option>
+                  <option>Poor</option>
+                  <option>Graded</option>
+                </select>
+              </label>
+              <label>
+                Grade
+                <input id="grade" name="grade" placeholder="PSA 10" />
+              </label>
+              <label>
+                Certification Number
+                <input id="certification" name="certification" inputmode="numeric" autocomplete="off" placeholder="PSA cert number" />
+              </label>
+              <label>
+                Qty
+                <input id="quantity" name="quantity" type="number" min="1" step="1" value="1" />
+              </label>
+              <label>
+                Paid (RMB)
+                <input id="paid" name="paid" type="number" min="0" step="0.01" placeholder="12.50" />
+              </label>
+              <label>
+                Est. Value (RMB)
+                <input id="value" name="value" type="number" min="0" step="0.01" placeholder="35.00" />
+              </label>
+              <label>
+                Location
+                <input id="location" name="location" placeholder="Box A / Binder 2" />
+              </label>
+            </div>
+            <section id="psaCardLookup" class="psa-card-lookup" aria-labelledby="psaCardLookupTitle">
+              <div>
+                <span class="material-symbols-outlined" aria-hidden="true">verified</span>
+                <div><strong id="psaCardLookupTitle">PSA Population</strong><small>Saved automatically when you add the card. A cert number checks PSA live; without one, Card Ledger searches the shared PSA index.</small></div>
+              </div>
+              <button id="lookupPsaCard" class="ghost-button compact-button" type="button">Check PSA</button>
+              <div id="psaCardLookupResult" class="psa-card-lookup-result" aria-live="polite">Waiting for a PSA card.</div>
+            </section>
+            <label>
+              Notes
+              <textarea id="notes" name="notes" rows="3" placeholder="Numbered, autograph, surface notes, purchase source..."></textarea>
+            </label>
+            <details id="advancedCardDetails" class="advanced-entry-fields">
+              <summary>Advanced details</summary>
+              <div id="advancedCardFields" class="field-grid"></div>
+            </details>
+            <div class="beginner-save-bar">
+              <div>
+                <strong id="beginnerSaveTitle">Finish the five basics to save</strong>
+                <small id="beginnerSaveHint">Optional details can always be added later.</small>
+              </div>
+              <button class="primary-button" type="submit">Save Card</button>
+            </div>
+          </form>
+          <datalist id="cardYearOptions"></datalist>
+          <datalist id="cardBrandOptions"></datalist>
+          <datalist id="cardSetOptions"></datalist>
+          <datalist id="guidedSetOptions"></datalist>
+          <datalist id="cardPlayerOptions"></datalist>
+          <datalist id="cardTypeOptions"></datalist>
+          <datalist id="cardParallelOptions"></datalist>
+          <section class="fixed-format-panel" aria-labelledby="bulkCardTitle">
+            <div class="section-heading">
+              <h2 id="bulkCardTitle">Fixed Format Entry</h2>
+              <button id="clearBulkCards" class="ghost-button compact-button" type="button">Clear</button>
+            </div>
+            <div class="format-strip">Year | Brand | Set | Player | Type | Parallel | Number | Sport | Condition | Grade | Qty | Paid RMB | Value RMB | Location | Notes</div>
+            <textarea id="bulkCardInput" rows="5" placeholder="2018-19 | Panini | Donruss Optic | Jalen Brunson | Base | Mojo Red /88 | 179 | Basketball | Raw |  | 1 | 0 | 3173 | Box A | Collection note"></textarea>
+            <div class="form-actions">
+              <button id="importBulkCards" class="primary-button" type="button">Import Lines</button>
+              <span id="bulkCardStatus" class="inline-status"></span>
+            </div>
+          </section>
+        </div>
+
+        <div id="tradeEntryPanel" class="entry-mode-panel hidden" role="tabpanel" aria-labelledby="tradeEntryTab">
+          <div class="section-heading">
+            <h2>Record Trade</h2>
+            <button id="resetTradeForm" class="ghost-button" type="button">Clear</button>
+          </div>
+          <form id="tradeForm" class="trade-form">
+            <div class="field-grid">
+              <label>
+                Date
+                <input id="tradeDate" type="date" />
+              </label>
+              <label>
+                Counterparty
+                <input id="tradeCounterparty" placeholder="Collector / shop" />
+              </label>
+            </div>
+            <label>
+              Cards Out
+              <textarea id="tradeOutgoing" rows="3" placeholder="2018-19 | Panini | Donruss Optic | Jalen Brunson | Base | Mojo Red /88 | 179"></textarea>
+            </label>
+            <label>
+              Cards In
+              <textarea id="tradeIncoming" rows="3" placeholder="2018-19 | Panini | Donruss Optic | Shai Gilgeous-Alexander | Base | Holo | 162"></textarea>
+            </label>
+            <div class="field-grid">
+              <label>
+                Cash Paid (RMB)
+                <input id="tradeCashPaid" type="number" min="0" step="0.01" placeholder="0" />
+              </label>
+              <label>
+                Cash Received (RMB)
+                <input id="tradeCashReceived" type="number" min="0" step="0.01" placeholder="0" />
+              </label>
+            </div>
+            <label>
+              Notes
+              <textarea id="tradeNotes" rows="2" placeholder="Condition, valuation, reason for deal..."></textarea>
+            </label>
+            <button class="primary-button" type="submit">Save Trade</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="syncArea" class="sync-panel workspace-panel" data-panel="sync" aria-labelledby="syncTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="syncTitle">Imports</h2>
+            <p>Bring purchase rows from eBay or CardHobby into your collection.</p>
+          </div>
+        </div>
+        <div class="connection-grid">
+          <article class="connection-card" data-provider-card="ebay">
+            <div>
+              <strong>eBay</strong>
+              <small id="ebayConnectionStatus">Not connected</small>
+            </div>
+            <div class="form-actions">
+              <button class="primary-button compact-button" type="button" data-connect-provider="ebay">Connect</button>
+              <button class="ghost-button compact-button" type="button" data-disconnect-provider="ebay">Disconnect</button>
+            </div>
+          </article>
+          <article class="connection-card" data-provider-card="cardhobby">
+            <div>
+              <strong>CardHobby</strong>
+              <small id="cardhobbyConnectionStatus">Not connected</small>
+            </div>
+            <div class="form-actions">
+              <button class="primary-button compact-button" type="button" data-connect-provider="cardhobby">Connect</button>
+              <button class="ghost-button compact-button" type="button" data-disconnect-provider="cardhobby">Disconnect</button>
+            </div>
+          </article>
+        </div>
+        <section id="orderFileImporter" class="order-file-importer marketplace-sales-panel" aria-labelledby="marketplaceSalesTitle">
+          <div class="section-heading compact-heading">
+            <div>
+              <h3 id="marketplaceSalesTitle">Verified Sales Records</h3>
+              <p>Sync your completed eBay seller orders or import eBay and CardHobby CSV/JSON exports. Buyer personal details are never retained.</p>
+            </div>
+            <div class="form-actions">
+              <button id="syncEbaySales" class="primary-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">sync</span>Sync eBay sales</button>
+              <button id="downloadSalesRecords" class="ghost-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">download</span>Download CSV</button>
+            </div>
+          </div>
+          <div class="sales-import-controls">
+            <label>
+              Export source
+              <select id="salesRecordImportProvider">
+                <option value="auto">Detect source</option>
+                <option value="ebay">eBay</option>
+                <option value="cardhobby">CardHobby</option>
+                <option value="cardladder">Card Ladder</option>
+                <option value="market_movers">Market Movers</option>
+              </select>
+            </label>
+            <label>
+              Record type
+              <select id="salesRecordImportScope">
+                <option value="personal_sale">My completed sales</option>
+                <option value="market_comp">Sold comparison records</option>
+              </select>
+            </label>
+            <label class="file-drop-compact sales-file-picker">
+              Choose CSV or JSON export
+              <input id="marketplaceOrderFile" type="file" accept=".csv,.json,application/json,text/csv" />
+            </label>
+            <button id="confirmOrderImport" class="primary-button compact-button" type="button" disabled>Import valid rows</button>
+          </div>
+          <div id="marketplaceOrderPreview" class="csv-preview"></div>
+          <div class="marketplace-sales-toolbar">
+            <input id="salesRecordSearchQuery" type="search" placeholder="Search saved sales by player, set, parallel, number..." />
+            <select id="salesRecordProviderFilter" aria-label="Filter sales source">
+              <option value="all">All sources</option>
+              <option value="ebay">eBay</option>
+              <option value="cardhobby">CardHobby</option>
+              <option value="cardladder">Card Ladder</option>
+              <option value="market_movers">Market Movers</option>
+            </select>
+            <button id="searchSoldComps" class="ghost-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">query_stats</span>Find sold comps</button>
+          </div>
+          <span id="marketplaceSalesStatus" class="inline-status" aria-live="polite"></span>
+          <div id="marketplaceSalesSummary" class="marketplace-sales-summary"></div>
+          <div id="marketplaceSalesList" class="marketplace-sales-list"></div>
+        </section>
+        <section id="trendSourcePanel" class="trend-source-panel" aria-labelledby="trendSourceTitle">
+          <div class="section-heading compact-heading">
+            <div>
+              <h3 id="trendSourceTitle">Card Trend Sources</h3>
+              <p>Refresh one exact card from a licensed Card Ladder or Market Movers feed. Without licensed access, import an export above and the matching sales will appear on that card's chart automatically.</p>
+            </div>
+            <span class="source-policy-badge"><span class="material-symbols-outlined" aria-hidden="true">verified_user</span>Licensed or owner-exported data only</span>
+          </div>
+          <div class="trend-source-controls">
+            <label>
+              Collection card
+              <select id="trendCardSelect" aria-label="Card to refresh"></select>
+            </label>
+            <label>
+              Source
+              <select id="trendProviderSelect">
+                <option value="both">Card Ladder + Market Movers</option>
+                <option value="cardladder">Card Ladder</option>
+                <option value="market_movers">Market Movers</option>
+              </select>
+            </label>
+            <button id="refreshTrendData" class="primary-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">query_stats</span>Refresh trend</button>
+          </div>
+          <div class="trend-source-note">
+            <strong>Why no scraper?</strong>
+            <span>Both services prohibit automated harvesting in their published terms. API credentials stay in the Supabase Edge Function and are never exposed to this page.</span>
+          </div>
+          <span id="trendSourceStatus" class="inline-status" aria-live="polite"></span>
+        </section>
+        <section class="marketplace-browser" aria-labelledby="marketplaceBrowserTitle">
+          <div class="section-heading compact-heading">
+            <div><h3 id="marketplaceBrowserTitle">Marketplace Search</h3><p>Search connected active listings. Listing prices are never treated as completed sales.</p></div>
+          </div>
+          <div class="marketplace-search-row">
+            <input id="marketplaceSearchQuery" placeholder="Year, set, player, parallel, number..." />
+            <select id="marketplaceSearchProvider" aria-label="Marketplace provider"><option value="ebay">eBay</option><option value="cardhobby">CardHobby</option><option value="both">Both</option></select>
+            <button id="searchMarketplaces" class="primary-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">search</span>Search</button>
+          </div>
+          <span id="marketplaceSearchStatus" class="inline-status" aria-live="polite"></span>
+          <div id="marketplaceSearchResults" class="marketplace-search-results"></div>
+        </section>
+        <section class="psa-population-browser" aria-labelledby="psaPopulationBrowserTitle">
+          <div class="section-heading compact-heading">
+            <div><h3 id="psaPopulationBrowserTitle">PSA Population Search</h3><p>Search the shared Supabase population index by year, set, player, card number, or variety.</p></div>
+          </div>
+          <div class="marketplace-search-row">
+            <input id="psaPopulationQuery" placeholder="2013 Panini Prizm Stephen Curry 176" />
+            <button id="searchPsaPopulation" class="primary-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">database</span>Search population</button>
+          </div>
+          <span id="psaPopulationStatus" class="inline-status" aria-live="polite"></span>
+          <div id="psaPopulationResults" class="psa-population-results"></div>
+        </section>
+        <div class="sync-note">
+          <strong>Provider access</strong>
+          <span>eBay account sync uses secure OAuth after the Supabase function is deployed. eBay Seller Hub and CardHobby CSV/JSON exports can be imported immediately. CardHobby live sync remains available only through an approved partner endpoint.</span>
+        </div>
+        <div class="image-finder-panel">
+          <div class="section-heading compact-heading">
+            <h3>Card Image Finder</h3>
+            <button id="saveImageSettings" class="ghost-button compact-button" type="button">Save</button>
+          </div>
+          <label>
+            Image API endpoint
+            <input id="imageApiEndpoint" placeholder="http://127.0.0.1:8787/card-image?q={query}" />
+          </label>
+          <label class="checkbox-row">
+            <input id="autoImageLookup" type="checkbox" checked />
+            Auto attach image when adding cards
+          </label>
+          <p class="integration-note">Recommended source: eBay Browse API returns imageUrl officially. COMC and CardHobby can be used by a backend matcher, but should not be scraped directly from this static page.</p>
+          <span id="imageLookupStatus" class="inline-status"></span>
+        </div>
+        <div class="image-finder-panel premium-auction-panel">
+          <div class="section-heading compact-heading">
+            <h3>Premium Auction Comps</h3>
+            <button id="saveAuctionSettings" class="ghost-button compact-button" type="button">Save</button>
+          </div>
+          <label>
+            Sales data endpoint
+            <input id="auctionApiEndpoint" placeholder="http://127.0.0.1:8787/premium-sales?q={query}" />
+          </label>
+          <label>
+            High-value threshold RMB
+            <input id="auctionMinValue" type="number" min="0" step="500" value="10000" />
+          </label>
+          <p class="integration-note">Use this for Goldin, Fanatics Collect, ALT, PWCC, or other premium auction records. The endpoint should return JSON sales with date, value, source, and label.</p>
+          <div id="auctionSourceList" class="source-chip-list"></div>
+          <span id="auctionLookupStatus" class="inline-status"></span>
+        </div>
+        <div class="fixed-format-panel sync-import-panel">
+          <div class="format-strip">Year | Brand | Set | Player | Type | Parallel | Number | Sport | Condition | Grade | Qty | Paid RMB | Value RMB | Platform | Order ID | Purchase Date | Location | Notes</div>
+          <textarea id="purchaseImportInput" rows="5" placeholder="2023-24 | Panini Prizm | Victor Wembanyama | Rookie | Base | 136 | Basketball | Raw | | 1 | 350 | 419 | eBay | 12-34567 | 2026-07-09 | Box A | Imported purchase"></textarea>
+          <div class="form-actions">
+            <button id="importPurchases" class="primary-button" type="button">Import Purchases</button>
+            <button id="fillPurchaseSample" class="ghost-button" type="button">Sample</button>
+            <button id="clearPurchaseImport" class="ghost-button" type="button">Clear</button>
+            <span id="purchaseSyncStatus" class="inline-status"></span>
+          </div>
+        </div>
+        <div id="syncHistory" class="sync-history"></div>
+      </section>
+
+      <section id="photoImportArea" class="photo-import-panel workspace-panel" data-panel="photoImport" aria-labelledby="photoImportTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="photoImportTitle">Photo Import</h2>
+            <p>Upload the card, confirm its identity, and review the automatic pre-grade and PSA population reference before insertion.</p>
+          </div>
+          <button id="clearPhotoImport" class="ghost-button compact-button" type="button">Clear</button>
+        </div>
+        <div class="photo-import-grid">
+          <div class="photo-import-images">
+            <label class="photo-drop">
+              <span><strong>Front photo</strong><small>Required · upload or use camera</small></span>
+              <input id="photoImportFile" type="file" accept="image/*" />
+              <img id="photoImportPreview" class="hidden" alt="Front of card import preview" />
+            </label>
+            <label class="photo-drop photo-drop-secondary">
+              <span><strong>Back photo</strong><small>Optional · improves confidence</small></span>
+              <input id="photoImportBackFile" type="file" accept="image/*" />
+              <img id="photoImportBackPreview" class="hidden" alt="Back of card import preview" />
+            </label>
+          </div>
+          <label>
+            Confirmed Card Line
+            <textarea id="photoImportLine" rows="7" placeholder="Year | Brand | Set | Player | Type | Parallel | Number | Sport | Condition | Grade | Qty | Paid RMB | Value RMB | Location | Notes"></textarea>
+            <small class="field-hint">Population matching uses year, brand, set, player, card number, parallel, and the confirmed or estimated PSA grade.</small>
+          </label>
+          <aside id="photoImportAssessment" class="photo-import-assessment" aria-live="polite">
+            <div class="photo-assessment-heading">
+              <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+              <div><strong>Automatic condition check</strong><small id="photoImportAnalysisState">Add a front photo to begin.</small></div>
+            </div>
+            <div class="photo-grade-results">
+              <span><small>Estimated PSA</small><strong id="photoImportEstimatedPsa">--</strong></span>
+              <span><small>Estimated BGS</small><strong id="photoImportEstimatedBgs">--</strong></span>
+              <span><small>Confidence</small><strong id="photoImportConfidence">--</strong></span>
+            </div>
+            <div id="photoImportPopulation" class="photo-population-result">
+              <span class="material-symbols-outlined" aria-hidden="true">database</span>
+              <p>Population lookup starts after a photo and card identity are ready.</p>
+            </div>
+            <div class="photo-assessment-actions">
+              <button id="photoImportRefreshPopulation" class="icon-button" type="button" title="Refresh PSA population" aria-label="Refresh PSA population"><span class="material-symbols-outlined" aria-hidden="true">refresh</span></button>
+              <small>Pre-grade only. PSA and BGS make the official grade after in-person inspection.</small>
+            </div>
+          </aside>
+        </div>
+        <div class="form-actions">
+          <button id="insertPhotoCard" class="primary-button" type="button">Insert Photo Card</button>
+          <button id="photoImportSample" class="ghost-button" type="button">Sample</button>
+          <span id="photoImportStatus" class="inline-status"></span>
+        </div>
+      </section>
+
+      <section id="collectionOperationsArea" class="collection-operations-panel workspace-panel" data-panel="collectionOperations" aria-labelledby="collectionOperationsTitle">
+        <div class="section-heading">
+          <div><h2 id="collectionOperationsTitle">Collection operations</h2><p>Import, clean, organize, and label large collections without leaving this page.</p></div>
+          <span id="operationSelectionCount" class="role-badge">0 selected</span>
+        </div>
+        <div class="operations-grid">
+          <details open>
+            <summary>CSV mapping importer</summary>
+            <label class="file-drop-compact">Choose CSV file<input id="csvImportFile" type="file" accept=".csv,text/csv" /></label>
+            <div id="csvMappingFields" class="csv-mapping-grid"></div>
+            <div id="csvPreview" class="csv-preview"></div>
+            <div class="form-actions"><button id="importMappedCsv" class="primary-button compact-button" type="button" disabled>Import valid rows</button><span id="csvImportStatus" class="inline-status"></span></div>
+          </details>
+          <details>
+            <summary>Duplicate review</summary>
+            <div id="duplicateReviewList" class="operation-list"></div>
+          </details>
+          <details>
+            <summary>Batch actions</summary>
+            <div class="batch-toolbar">
+              <label>Move to<input id="batchLocation" placeholder="Box, binder, or vault" /></label>
+              <label>Set sport<select id="batchSport"><option value="">No change</option><option>Basketball</option><option>Baseball</option><option>Football</option><option>Soccer</option><option>Hockey</option><option>PTCG</option><option>Other</option></select></label>
+              <button id="batchApply" class="primary-button compact-button" type="button">Apply edit</button>
+              <button id="batchRefresh" class="ghost-button compact-button" type="button">Queue value refresh</button>
+              <button id="batchQr" class="ghost-button compact-button" type="button">Create QR labels</button>
+              <button id="batchDelete" class="delete-button compact-button" type="button">Delete selected</button>
+            </div>
+          </details>
+          <details>
+            <summary>Saved views</summary>
+            <div class="saved-view-editor"><input id="savedViewName" placeholder="View name" /><button id="saveCurrentView" class="primary-button compact-button" type="button">Save current filters</button></div>
+            <div id="savedViewsList" class="chip-action-list"></div>
+          </details>
+        </div>
+        <div id="qrLabelSheet" class="qr-label-sheet hidden"></div>
+      </section>
+
+      <section id="pricingLabArea" class="pricing-panel workspace-panel" data-panel="pricing" aria-labelledby="pricingLabTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="pricingLabTitle">Values</h2>
+            <p>Confidence, source coverage, and valuation method.</p>
+          </div>
+        </div>
+        <div id="collectorReviewQueue" class="collector-review-queue"></div>
+        <div id="pricingLabList" class="intelligence-list"></div>
+        <details class="market-notes-drawer">
+          <summary><span class="material-symbols-outlined" aria-hidden="true">code_blocks</span>Planned valuation connections <small>3 reserved functions</small></summary>
+          <div class="reserved-feature-grid">
+            <article class="reserved-feature"><span>Reserved</span><h3>Sale-type separation and outlier review</h3><p>Auction, fixed-price, accepted-offer, and statistical outlier controls will activate after a verified marketplace sales feed is connected.</p><code>hook: normalizeMarketplaceSale()</code></article>
+            <article class="reserved-feature"><span>Reserved</span><h3>Rare-card comparable analysis</h3><p>Comparable assets, confidence ranges, and human appraisal weighting are intentionally dormant until exact-source data is available.</p><code>hook: buildComparableAssetSet()</code></article>
+            <article class="reserved-feature"><span>Reserved</span><h3>Weekly value refresh</h3><p>The scheduler and refresh timestamps are ready. No values will change until a verified sales endpoint is connected.</p><div id="weeklyRefreshStatus" class="inline-status"></div></article>
+          </div>
+        </details>
+      </section>
+
+      <section id="portfolioArea" class="portfolio-panel workspace-panel" data-panel="portfolio" aria-labelledby="portfolioTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="portfolioTitle">Performance</h2>
+            <p>Profit, exposure, grading candidates, and liquidity.</p>
+          </div>
+        </div>
+        <div id="portfolioSummary" class="portfolio-summary"></div>
+        <div class="period-card">
+          <div class="period-copy">
+            <strong>Period View</strong>
+            <span>Review cost and earning for cards bought or added during a date range.</span>
+          </div>
+          <div class="period-controls">
+            <label>
+              From
+              <input id="periodStart" type="date" />
+            </label>
+            <label>
+              To
+              <input id="periodEnd" type="date" />
+            </label>
+            <button id="applyPeriod" class="primary-button compact-button" type="button">Apply</button>
+            <button id="clearPeriod" class="ghost-button compact-button" type="button">All Time</button>
+          </div>
+        </div>
+        <div id="periodSummary" class="portfolio-summary period-summary"></div>
+        <div id="riskMatrix" class="risk-matrix"></div>
+        <div id="collectionTimeline" class="timeline-list"></div>
+        <div id="pwaChecklist" class="pwa-checklist"></div>
+        <div id="portfolioInsights" class="intelligence-list"></div>
+      </section>
+
+      <section id="goalAssistantArea" class="goal-assistant-panel workspace-panel" data-panel="goalAssistant" aria-labelledby="goalAssistantTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="goalAssistantTitle">Missing Cards</h2>
+            <p>Targets, buy links, status, and target price guidance.</p>
+          </div>
+        </div>
+        <div id="goalAssistantList" class="intelligence-list"></div>
+      </section>
+
+      <section id="watchlistArea" class="watchlist-panel workspace-panel" data-panel="watchlist" aria-labelledby="watchlistTitle">
+        <div class="section-heading">
+          <div><h2 id="watchlistTitle">Personal watchlist</h2><p>Track individual cards independently from collection goals.</p></div>
+          <button id="requestBrowserAlerts" class="ghost-button compact-button" type="button">Enable browser alerts</button>
+        </div>
+        <form id="watchlistForm" class="watchlist-form">
+          <div class="field-grid"><label>Card<input id="watchlistCard" required placeholder="Year | Brand | Set | Player | Type | Parallel | Number" /></label><label>Priority<select id="watchlistPriority"><option>High</option><option selected>Normal</option><option>Low</option></select></label></div>
+          <div class="alert-channel-row"><label><input id="watchInApp" type="checkbox" checked /> In-app</label><label><input id="watchBrowser" type="checkbox" /> Browser</label><label class="reserved-channel"><input type="checkbox" disabled /> Email <small>backend reserved</small></label></div>
+          <button class="primary-button" type="submit">Add to watchlist</button>
+        </form>
+        <div id="watchlistList" class="operation-list"></div>
+        <div id="notificationCenter" class="notification-center"></div>
+      </section>
+
+      <section id="aiTradeArea" class="ai-trade-panel workspace-panel" data-panel="aiTrade" aria-labelledby="aiTradeTitle">
+        <div class="section-heading trade-ai-heading">
+          <div>
+            <span class="section-eyebrow">Trade intelligence</span>
+            <h2 id="aiTradeTitle">AI Trade Builder</h2>
+            <p>Build both sides, inspect the evidence, and negotiate from a clear position.</p>
+          </div>
+          <div class="section-heading-actions"><span id="aiTradeQuotaBadge" class="quota-badge">5 per month</span><button id="clearTradeAi" class="ghost-button compact-button" type="button">Clear</button></div>
+        </div>
+
+        <div class="trade-estimate-policy" role="note">
+          <span class="material-symbols-outlined" aria-hidden="true">verified</span>
+          <div><strong>Explainable estimates</strong><p>Saved completed sales are averaged after obvious outliers are removed. Collection estimates and manual values are clearly labeled when sale evidence is unavailable.</p></div>
+        </div>
+
+        <div class="trade-ai-workspace">
+          <div class="trade-ai-main">
+            <div class="trade-ai-grid">
+              <section class="trade-side-panel mine" aria-labelledby="tradeAiMineTitle">
+                <div class="trade-side-heading">
+                  <div><span class="trade-side-dot"></span><h3 id="tradeAiMineTitle">Your Cards</h3></div>
+                  <span id="tradeAiMineSummary" class="trade-side-summary">0 cards</span>
+                </div>
+                <label class="sr-only" for="tradeAiMine">Your cards in fixed format</label>
+                <textarea id="tradeAiMine" rows="6" spellcheck="false" placeholder="2018-19 | Panini | Donruss Optic | Jalen Brunson | Base | Mojo Red /88 | 179 | Raw | 3173"></textarea>
+                <div class="trade-collection-picker">
+                  <select id="tradeAiCollectionSelect" aria-label="Choose a card from your collection"><option value="">Choose from collection</option></select>
+                  <button id="addTradeAiCollection" class="ghost-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">add</span>Add card</button>
+                </div>
+                <div id="tradeAiMinePreview" class="trade-evidence-list" aria-live="polite"></div>
+              </section>
+
+              <section class="trade-side-panel theirs" aria-labelledby="tradeAiTheirsTitle">
+                <div class="trade-side-heading">
+                  <div><span class="trade-side-dot"></span><h3 id="tradeAiTheirsTitle">Their Cards</h3></div>
+                  <span id="tradeAiTheirsSummary" class="trade-side-summary">0 cards</span>
+                </div>
+                <label class="sr-only" for="tradeAiTheirs">Their cards in fixed format</label>
+                <textarea id="tradeAiTheirs" rows="6" spellcheck="false" placeholder="2018-19 | Panini | Donruss Optic | Shai Gilgeous-Alexander | Base | Holo | 162 | Raw | 1105"></textarea>
+                <p class="trade-input-hint"><span class="material-symbols-outlined" aria-hidden="true">database</span>Exact collection matches and saved sale records are estimated automatically.</p>
+                <div id="tradeAiTheirsPreview" class="trade-evidence-list" aria-live="polite"></div>
+              </section>
+            </div>
+
+            <details class="trade-entry-helper" open>
+              <summary><span class="material-symbols-outlined" aria-hidden="true">add_card</span><span>Structured card entry</span><small>Build one correctly formatted card</small></summary>
+              <div class="trade-entry-helper-body">
+                <div class="format-strip">Year | Brand | Set | Player | Type | Parallel | Number | Grade | Value RMB</div>
+                <div class="trade-composer-grid primary-fields">
+                  <label>Side<select id="tradeAiStructuredSide"><option value="mine">Your Cards</option><option value="theirs">Their Cards</option></select></label>
+                  <label>Year<input id="tradeAiYear" list="cardYearOptions" placeholder="2023-24" /></label>
+                  <label>Brand<input id="tradeAiBrand" list="cardBrandOptions" placeholder="Panini" /></label>
+                  <label>Set<input id="tradeAiSet" list="cardSetOptions" placeholder="Prizm" /></label>
+                  <label>Player<input id="tradeAiPlayer" list="cardPlayerOptions" placeholder="Victor Wembanyama" /></label>
+                </div>
+                <div class="trade-composer-grid detail-fields">
+                  <label>Type<input id="tradeAiType" list="cardTypeOptions" placeholder="Rookie" /></label>
+                  <label>Parallel<input id="tradeAiParallel" list="cardParallelOptions" placeholder="Silver" /></label>
+                  <label>Number<input id="tradeAiNumber" placeholder="136" /></label>
+                  <label>Grade<input id="tradeAiGrade" placeholder="Raw or PSA 10" /></label>
+                  <label>Manual value RMB <small>optional</small><input id="tradeAiValue" inputmode="decimal" type="number" min="0" step="1" placeholder="Auto estimate" /></label>
+                </div>
+                <div class="trade-composer-actions"><button id="tradeAiAddStructured" class="ghost-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">add</span>Add to side</button><span id="tradeAiStructuredStatus" class="inline-status">Use catalog suggestions when available.</span></div>
+              </div>
+            </details>
+
+            <details class="trade-ai-options">
+              <summary><span class="material-symbols-outlined" aria-hidden="true">tune</span>Proposal controls</summary>
+              <div class="field-grid compact-grid">
+                <label>Max cards each side<input id="tradeAiMaxCards" type="number" min="1" max="4" step="1" value="3" /></label>
+                <label>Balance tolerance (RMB)<input id="tradeAiTolerance" type="number" min="0" step="50" value="300" /></label>
+                <label>Max cash add (RMB)<input id="tradeAiMaxCash" type="number" min="0" step="50" value="2000" /></label>
+              </div>
+            </details>
+
+            <button id="generateTradeAi" class="primary-button trade-propose-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>Build ranked proposals</button>
+          </div>
+
+          <aside class="sports-guy-panel" aria-labelledby="sportsGuyTitle">
+            <div class="sports-guy-heading">
+              <div><span class="agent-online"><i></i>Negotiation copilot</span><h3 id="sportsGuyTitle">Sports Guy</h3></div>
+              <button id="clearSportsGuy" class="icon-button" type="button" title="Clear Sports Guy chat" aria-label="Clear Sports Guy chat"><span class="material-symbols-outlined" aria-hidden="true">delete_sweep</span></button>
+            </div>
+            <div id="sportsGuyRobotStage" class="sports-guy-robot-stage" role="group" tabindex="0" aria-label="Interactive animated Sports Guy robot">
+              <canvas id="sportsGuyRobotCanvas" aria-hidden="true"></canvas>
+              <div id="sportsGuyRobotBubble" class="sports-guy-robot-bubble" aria-live="polite">Ready to scout this trade.</div>
+              <div class="sports-guy-robot-controls">
+                <button id="sportsGuyRobotWave" type="button" title="Wave to Sports Guy"><span class="material-symbols-outlined" aria-hidden="true">waving_hand</span><span>Say hello</span></button>
+                <button id="sportsGuyVoiceToggle" type="button" aria-pressed="false" title="Turn on Sports Guy voice"><span class="material-symbols-outlined" aria-hidden="true">volume_off</span><span>Voice off</span></button>
+              </div>
+              <small>Move your pointer and click the robot to interact.</small>
+            </div>
+            <p class="sports-guy-intro">Paste what the dealer said or ask for a counter. Sports Guy checks the current cards, estimate confidence, cash gap, and your downside.</p>
+            <div id="sportsGuyStatus" class="sports-guy-status"><span class="material-symbols-outlined" aria-hidden="true">radar</span>Add both sides to activate deal analysis.</div>
+            <div class="sports-guy-quick-actions" aria-label="Sports Guy quick actions">
+              <button type="button" data-sports-guy-action="evaluate">Evaluate offer</button>
+              <button type="button" data-sports-guy-action="counter">Draft counter</button>
+              <button type="button" data-sports-guy-action="middle">Find fair middle</button>
+              <button type="button" data-sports-guy-action="walk">Walk-away check</button>
+            </div>
+            <div id="sportsGuyMessages" class="sports-guy-messages" aria-live="polite"></div>
+            <form id="sportsGuyForm" class="sports-guy-form">
+              <label class="sr-only" for="sportsGuyInput">Dealer message or question for Sports Guy</label>
+              <textarea id="sportsGuyInput" rows="3" placeholder="Paste the dealer's message or ask Sports Guy..."></textarea>
+              <button id="sportsGuySend" class="icon-button" type="submit" title="Ask Sports Guy" aria-label="Ask Sports Guy"><span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span></button>
+            </form>
+            <button id="sportsGuyCopyReply" class="ghost-button compact-button hidden" type="button"><span class="material-symbols-outlined" aria-hidden="true">content_copy</span>Copy latest draft</button>
+            <small class="sports-guy-privacy">Nothing is sent to a dealer automatically. You approve every reply.</small>
+          </aside>
+        </div>
+
+        <section class="trade-proposal-section" aria-labelledby="tradeProposalTitle">
+          <div class="trade-proposal-heading"><div><span class="section-eyebrow">Deal desk</span><h3 id="tradeProposalTitle">Ranked proposals</h3></div><span id="tradeAiResultSummary">Waiting for both sides</span></div>
+          <div id="tradeAiEmpty" class="trade-empty">Add cards to both sides to build fair-market, value-protection, and collector-fit proposals.</div>
+          <div id="tradeAiResults" class="trade-ai-results"></div>
+        </section>
+      </section>
+
+      <section id="conditionArea" class="condition-page workspace-panel" data-panel="condition" aria-labelledby="conditionTitle">
+        <div class="section-heading condition-heading">
+          <div>
+            <span class="section-eyebrow">On-device pre-grade lab</span>
+            <h2 id="conditionTitle">Condition Check</h2>
+            <p>Upload or photograph both sides for a transparent PSA and BGS pre-grade estimate.</p>
+          </div>
+          <div class="condition-heading-status">
+            <span class="condition-private-badge"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Images stay on this device</span>
+            <button id="conditionReset" class="ghost-button compact-button" type="button">Reset</button>
+          </div>
+        </div>
+
+        <div class="condition-disclosure" role="note">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          <div><strong>Pre-screening, not certification</strong><p>A photo cannot confirm authenticity, trimming, restoration, dents, creases, or every surface defect. Use this report to prepare a submission, then rely on in-person inspection and the grading company.</p><div class="condition-standard-links"><a href="https://www.psacard.com/gradingstandards" target="_blank" rel="noreferrer">PSA grading standards</a><a href="https://www.beckett.com/grading/scale" target="_blank" rel="noreferrer">BGS grading scale</a></div></div>
+        </div>
+
+        <div class="condition-workspace">
+          <section class="condition-capture-panel" aria-labelledby="conditionCaptureTitle">
+            <div class="condition-panel-heading">
+              <div><span>01</span><div><h3 id="conditionCaptureTitle">Capture the card</h3><p>Use even light, a plain dark background, and fill the frame.</p></div></div>
+              <div class="condition-mode-switch" role="tablist" aria-label="Condition image source">
+                <button class="active" type="button" role="tab" aria-selected="true" data-condition-mode="upload"><span class="material-symbols-outlined" aria-hidden="true">upload</span>Upload</button>
+                <button type="button" role="tab" aria-selected="false" data-condition-mode="camera"><span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>Camera</button>
+              </div>
+            </div>
+
+            <div id="conditionUploadPane" class="condition-upload-pane">
+              <label class="condition-image-well" data-condition-side="front">
+                <input id="conditionFrontInput" type="file" accept="image/*" />
+                <img id="conditionFrontPreview" class="hidden" alt="Front of card for condition check" />
+                <span class="condition-well-placeholder"><span class="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span><strong>Front image</strong><small>Upload a sharp, straight-on photo</small></span>
+                <span class="condition-side-label">Front</span>
+              </label>
+              <label class="condition-image-well" data-condition-side="back">
+                <input id="conditionBackInput" type="file" accept="image/*" />
+                <img id="conditionBackPreview" class="hidden" alt="Back of card for condition check" />
+                <span class="condition-well-placeholder"><span class="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span><strong>Back image</strong><small>Required for the strongest confidence</small></span>
+                <span class="condition-side-label">Back</span>
+              </label>
+            </div>
+
+            <div id="conditionCameraPane" class="condition-camera-pane hidden">
+              <div class="condition-camera-stage">
+                <video id="conditionCameraVideo" class="hidden" playsinline muted></video>
+                <div id="conditionCameraEmpty" class="condition-camera-empty"><span class="material-symbols-outlined" aria-hidden="true">document_scanner</span><strong>Camera is off</strong><small>Start the camera, then align the card inside the guide.</small></div>
+                <div class="condition-camera-guide" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+              </div>
+              <canvas id="conditionCameraCanvas" class="hidden"></canvas>
+              <div class="condition-camera-actions">
+                <button id="conditionStartCamera" class="primary-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>Start camera</button>
+                <button id="conditionCaptureFront" class="ghost-button" type="button" disabled>Capture front</button>
+                <button id="conditionCaptureBack" class="ghost-button" type="button" disabled>Capture back</button>
+                <button id="conditionStopCamera" class="icon-button" type="button" disabled title="Stop camera" aria-label="Stop camera"><span class="material-symbols-outlined" aria-hidden="true">stop_circle</span></button>
+              </div>
+              <p id="conditionCameraStatus" class="inline-status" role="status" aria-live="polite">Camera access starts only when you press Start camera.</p>
+            </div>
+
+            <div class="condition-capture-footer">
+              <div class="condition-side-progress" aria-label="Captured card sides"><span data-condition-progress="front"><i></i>Front</span><span data-condition-progress="back"><i></i>Back</span></div>
+              <button id="conditionAnalyze" class="primary-button condition-analyze-button" type="button" disabled><span class="material-symbols-outlined" aria-hidden="true">biotech</span>Analyze condition</button>
+            </div>
+          </section>
+
+          <aside class="condition-report-panel" aria-labelledby="conditionReportTitle">
+            <div class="condition-panel-heading report-heading">
+              <div><span>02</span><div><h3 id="conditionReportTitle">Pre-grade report</h3><p>Evidence first, grade second.</p></div></div>
+            </div>
+            <div id="conditionReportEmpty" class="condition-report-empty">
+              <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+              <strong>No analysis yet</strong>
+              <p>Add a front image to begin. A back image improves completeness and confidence.</p>
+            </div>
+            <div id="conditionReport" class="condition-report hidden" aria-live="polite">
+              <div class="condition-grade-row">
+                <article class="condition-grade-card psa"><span>PSA estimate</span><strong id="conditionPsaGrade">--</strong><small id="conditionPsaLabel">Pre-grade</small></article>
+                <article class="condition-grade-card bgs"><span>BGS estimate</span><strong id="conditionBgsGrade">--</strong><small id="conditionBgsLabel">Pre-grade</small></article>
+              </div>
+              <div class="condition-confidence-row"><span>Analysis confidence</span><strong id="conditionConfidence">--</strong><i><b id="conditionConfidenceBar"></b></i><small id="conditionConfidenceNote"></small></div>
+              <div id="conditionMetricList" class="condition-metric-list"></div>
+              <details class="condition-evidence" open><summary>Photo evidence and cautions</summary><div id="conditionEvidenceList"></div></details>
+            </div>
+          </aside>
+        </div>
+
+        <section class="condition-save-band" aria-labelledby="conditionSaveTitle">
+          <div><span class="material-symbols-outlined" aria-hidden="true">inventory_2</span><div><h3 id="conditionSaveTitle">Attach the report to your collection</h3><p>This stores a dated pre-grade report and never replaces an official grade.</p></div></div>
+          <div class="condition-save-controls">
+            <select id="conditionCollectionCard" aria-label="Collection card for condition report"><option value="">Choose a collection card</option></select>
+            <button id="conditionSaveReport" class="ghost-button" type="button" disabled>Save pre-grade report</button>
+          </div>
+          <span id="conditionSaveStatus" class="inline-status" role="status" aria-live="polite"></span>
+        </section>
+      </section>
+
+      <section id="collectionArea" class="collection-panel workspace-panel" data-panel="collection" aria-labelledby="collectionTitle">
+        <section class="collection-viewer-bar" aria-labelledby="collectionViewerTitle">
+          <div class="collection-viewer-copy">
+            <span class="material-symbols-outlined" aria-hidden="true">inventory_2</span>
+            <div>
+              <strong id="collectionViewerTitle">Collection Inventory</strong>
+              <span id="collectionViewerCount">0 cards ready to browse</span>
+            </div>
+          </div>
+          <div class="collection-viewer-actions">
+            <div class="view-toggle collection-viewer-modes" role="group" aria-label="Collection inventory view mode">
+              <button id="quickGridView" type="button" class="toggle-button active"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span>Grid</button>
+              <button id="quickTableView" type="button" class="toggle-button"><span class="material-symbols-outlined" aria-hidden="true">table_rows</span>Table</button>
+            </div>
+            <button id="quickToggleCollection" class="primary-button compact-button" type="button" aria-expanded="false" aria-controls="collectionInventory">
+              <span class="material-symbols-outlined" aria-hidden="true">unfold_more</span>
+              <span>Expand collection</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="presentation-closet" aria-labelledby="presentationClosetTitle">
+          <div class="presentation-closet-heading">
+            <div>
+              <span class="closet-eyebrow">Display Cabinet/Box</span>
+              <h2 id="presentationClosetTitle">Your cards, on display</h2>
+              <p>Choose a gallery cabinet or browse your collection inside an interactive storage box.</p>
+            </div>
+            <div class="closet-view-controls" role="group" aria-label="Selected card holder and cabinet layout">
+              <label>
+                Display
+                <select id="closetDisplayMode">
+                  <option value="theater">Gallery cabinet</option>
+                  <option value="storage">Storage box</option>
+                </select>
+              </label>
+              <label>
+                Holder
+                <select id="closetCardFormat">
+                  <option value="raw">Raw</option>
+                  <option value="psa">PSA</option>
+                  <option value="bgs">BGS</option>
+                </select>
+              </label>
+              <label>
+                Grade
+                <input id="closetCardGrade" type="text" maxlength="4" value="10" />
+              </label>
+              <button id="closetResetView" class="icon-command" type="button" title="Reset card arrangement" aria-label="Reset card arrangement">↻</button>
+            </div>
+          </div>
+
+          <div class="presentation-closet-layout">
+            <div id="closetCardStage" class="closet-card-stage" role="application" aria-label="Interactive display cabinet or box. Click cards to flip and drag to arrange.">
+              <canvas id="closetCardCanvas"></canvas>
+              <div class="closet-stage-caption">
+                <strong id="closetSelectedName">Emerald Rookie</strong>
+                <span id="closetStageHint">Click to flip · drag to arrange</span>
+              </div>
+              <div class="closet-storage-navigation" aria-label="Browse cards in storage box">
+                <button id="closetPreviousCard" type="button" title="Previous card" aria-label="Previous card">‹</button>
+                <span>Scroll cards</span>
+                <button id="closetNextCard" type="button" title="Next card" aria-label="Next card">›</button>
+              </div>
+            </div>
+
+            <div class="closet-library">
+              <div class="closet-library-heading">
+                <div>
+                  <strong>Display cards</strong>
+                  <span>Starter designs and your uploads</span>
+                </div>
+                <span id="closetCardCount" class="closet-count">3</span>
+              </div>
+              <div id="closetCardRail" class="closet-card-rail" role="listbox" aria-label="Select a display card"></div>
+
+              <details class="closet-add-panel">
+                <summary>Add your card photos</summary>
+                <form id="closetUploadForm" class="closet-upload-form">
+                  <label>
+                    Display name
+                    <input id="closetUploadName" required maxlength="60" placeholder="e.g. Curry Prizm Silver" />
+                  </label>
+                  <div class="closet-file-grid">
+                    <label class="closet-file-button">
+                      <span>Upload front</span>
+                      <input id="closetFrontUpload" type="file" accept="image/*" required />
+                    </label>
+                    <label class="closet-file-button">
+                      <span>Upload back</span>
+                      <input id="closetBackUpload" type="file" accept="image/*" />
+                    </label>
+                  </div>
+                  <div id="closetUploadPreview" class="closet-upload-preview" aria-live="polite"></div>
+                  <button class="primary-button" type="submit">Add to display only</button>
+                </form>
+                <div class="closet-collection-picker">
+                  <label>
+                    Or select a card image already in your collection
+                    <select id="closetCollectionCard"></select>
+                  </label>
+                  <button id="addCollectionCardToCloset" class="ghost-button" type="button">Add selected image</button>
+                </div>
+                <p id="closetStatus" class="integration-note" aria-live="polite"></p>
+              </details>
+            </div>
+          </div>
+        </section>
+
+        <div class="stats" aria-label="Collection stats">
+          <div>
+            <span id="totalCards">0</span>
+            <small>Cards</small>
+          </div>
+          <div>
+            <span id="totalValue">RMB 0</span>
+            <small>Value</small>
+          </div>
+          <div>
+            <span id="totalCost">RMB 0</span>
+            <small>Cost</small>
+          </div>
+          <div>
+            <span id="netValue">RMB 0</span>
+            <small>Gain</small>
+          </div>
+        </div>
+
+        <section class="collection-health" aria-labelledby="collectionHealthTitle">
+          <div class="collection-health-copy">
+            <span class="collection-health-eyebrow">Collection health</span>
+            <h3 id="collectionHealthTitle">Keep every card ready to find, verify, and share.</h3>
+            <p id="collectionHealthSummary">Add cards to see catalog coverage.</p>
+            <div class="collection-health-track" aria-hidden="true"><span id="collectionHealthBar"></span></div>
+          </div>
+          <dl class="collection-health-metrics">
+            <div><dt>Photos</dt><dd id="collectionPhotoCoverage">0%</dd></div>
+            <div><dt>PSA verified</dt><dd id="collectionPsaCoverage">0</dd></div>
+            <div><dt>Needs review</dt><dd id="collectionReviewCount">0</dd></div>
+          </dl>
+          <div class="collection-health-actions">
+            <button id="collectionAddCard" class="primary-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">add</span>Add card</button>
+            <button id="collectionReviewIssues" class="ghost-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">fact_check</span>Review issues</button>
+          </div>
+        </section>
+
+        <div id="collectionInventory" class="collection-inventory-content">
+        <div class="section-heading collection-heading">
+          <h2 id="collectionTitle">Collection</h2>
+          <div class="collection-tools">
+            <button id="refreshCollectionPsa" class="ghost-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">verified</span>Refresh PSA Pop</button>
+            <button id="toggleCollectionContent" class="ghost-button compact-button" type="button">Show Cards</button>
+            <div class="view-toggle" role="group" aria-label="View mode">
+              <button id="gridView" type="button" class="toggle-button active">Grid</button>
+              <button id="tableView" type="button" class="toggle-button">Table</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <label class="search-label">
+            Search
+            <input id="search" placeholder="Player, set, number, notes..." />
+          </label>
+          <label>
+            Sport
+            <select id="sportFilter">
+              <option value="">All sports</option>
+            </select>
+          </label>
+          <label>
+            Sort
+            <select id="sortBy">
+              <option value="createdDesc">Newest</option>
+              <option value="playerAsc">Player A-Z</option>
+              <option value="valueDesc">Highest value</option>
+              <option value="yearDesc">Newest year</option>
+              <option value="sportAsc">Sport A-Z</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="collection-quick-filters" role="group" aria-label="Quick collection filters">
+          <span>Quick view</span>
+          <button class="active" type="button" data-collection-filter="all">All cards</button>
+          <button type="button" data-collection-filter="psa">PSA graded</button>
+          <button type="button" data-collection-filter="missing-image">Missing photo</button>
+          <button type="button" data-collection-filter="review">Needs review</button>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="empty-art" aria-hidden="true"></div>
+          <h3>No cards yet</h3>
+          <p>Add a card to start tracking value, goals, and profit.</p>
+        </div>
+
+        <div id="goalCollectionList" class="goal-collection-list"></div>
+        <div id="collectionRooms" class="collection-rooms"></div>
+        <div class="collection-pagination-bar">
+          <span id="collectionResultSummary">0 cards</span>
+          <label>Per page<select id="collectionPageSize"><option>12</option><option selected>24</option><option>48</option><option>96</option></select></label>
+          <button id="collectionPreviousPage" class="icon-command" type="button" aria-label="Previous collection page">‹</button>
+          <span id="collectionPageIndicator">1 / 1</span>
+          <button id="collectionNextPage" class="icon-command" type="button" aria-label="Next collection page">›</button>
+        </div>
+        <div id="gridList" class="card-grid" aria-live="polite"></div>
+        <div id="tableWrap" class="table-wrap hidden">
+          <table>
+            <thead>
+              <tr>
+                <th>Card</th>
+                <th>Sport</th>
+                <th>Condition</th>
+                <th>Qty</th>
+                <th>Paid</th>
+                <th>Value</th>
+                <th>Score</th>
+                <th>Location</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        </div>
+      </section>
+
+      <section id="diyArea" class="diy-panel workspace-panel" data-panel="diy" aria-labelledby="diyTitle">
+        <header class="diy-page-heading">
+          <div>
+            <p class="section-kicker">Creator workshop</p>
+            <h2 id="diyTitle">DIY Card Studio</h2>
+            <p>Catalog original card designs, then publish selected cards for display, trade, or sale.</p>
+          </div>
+          <div class="diy-safety-mark">
+            <span class="material-symbols-outlined" aria-hidden="true">verified_user</span>
+            <span><strong>DIY only</strong><small>Unofficial cards stay separate from licensed inventory.</small></span>
+          </div>
+        </header>
+
+        <div class="diy-category-tabs" role="tablist" aria-label="DIY card categories">
+          <button class="active" type="button" role="tab" aria-selected="true" aria-controls="diyCatalogView" data-diy-tab="catalog">
+            <span class="material-symbols-outlined" aria-hidden="true">style</span>
+            <span><strong>DIY Library</strong><small>Series, players, and parallels</small></span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="diyMarketView" data-diy-tab="market">
+            <span class="material-symbols-outlined" aria-hidden="true">storefront</span>
+            <span><strong>Creator Market</strong><small>Display, trade, and sell</small></span>
+          </button>
+        </div>
+
+        <div id="diyCatalogView" class="diy-view" role="tabpanel">
+          <section class="diy-create-panel" aria-labelledby="diyCreateTitle">
+            <div class="section-heading compact-heading">
+              <div>
+                <h3 id="diyCreateTitle">Add an original card</h3>
+                <p>Build a reusable identity before listing the card.</p>
+              </div>
+              <span class="diy-unofficial-badge">DIY / Unofficial</span>
+            </div>
+            <form id="diyUploadForm" class="diy-upload-form">
+              <div class="field-grid compact-grid">
+                <label>
+                  Series
+                  <input id="diySeries" list="diySeriesOptions" required value="City Lights" placeholder="City Lights" />
+                </label>
+                <label>
+                  Player / Subject
+                  <input id="diyPlayer" list="diyPlayerOptions" required value="Stephen Curry" placeholder="Stephen Curry" />
+                </label>
+                <label>
+                  Parallel
+                  <input id="diyParallel" list="diyParallelOptions" required value="Neon Foil" placeholder="Neon Foil" />
+                </label>
+                <label>
+                  Card number
+                  <input id="diyNumber" required value="D-01" placeholder="D-01" />
+                </label>
+                <label>
+                  Print run
+                  <input id="diyPrintRun" type="number" min="1" max="99999" inputmode="numeric" value="25" placeholder="25" />
+                </label>
+                <label>
+                  Finish
+                  <select id="diyFinish">
+                    <option>Digital print</option>
+                    <option selected>Foil</option>
+                    <option>Canvas</option>
+                    <option>Acetate</option>
+                    <option>Handmade</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+              </div>
+              <section class="diy-generator-panel" aria-labelledby="diyGeneratorTitle">
+                <div class="diy-generator-heading">
+                  <div>
+                    <strong id="diyGeneratorTitle">Automatic card artwork</strong>
+                    <small>Choose a series design and player photo. Card Ledger builds the finished front and back.</small>
+                  </div>
+                  <label class="diy-auto-toggle">
+                    <input id="diyAutoGenerate" type="checkbox" checked />
+                    <span>Auto-generate</span>
+                  </label>
+                </div>
+                <div class="diy-choice-group">
+                  <div class="diy-choice-heading">
+                    <strong>Series designs</strong>
+                    <small>Frame, color, typography, and foil treatment</small>
+                  </div>
+                  <div id="diySeriesTemplateChoices" class="diy-series-choices" role="list" aria-label="DIY series designs"></div>
+                </div>
+                <div class="diy-choice-group">
+                  <div class="diy-choice-heading">
+                    <strong>Player images</strong>
+                    <small>Included licensed and public-domain photography</small>
+                  </div>
+                  <div id="diyPlayerImageChoices" class="diy-player-choices" role="list" aria-label="DIY player images"></div>
+                </div>
+                <input id="diySeriesTemplate" type="hidden" value="city-lights" />
+                <input id="diyPlayerImage" type="hidden" value="stephen-curry" />
+              </section>
+              <label>
+                Design title
+                <input id="diyTitleInput" maxlength="80" value="Night Court" placeholder="Night Court" />
+              </label>
+              <label>
+                Creator notes
+                <textarea id="diyDescription" rows="3" maxlength="420" placeholder="Materials, inspiration, edition details, and condition..."></textarea>
+              </label>
+              <div class="diy-image-upload-grid">
+                <label class="diy-image-drop">
+                  <span class="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span>
+                  <strong>Custom front override</strong>
+                  <small>Optional JPG, PNG, or WebP</small>
+                  <input id="diyFrontImage" type="file" accept="image/jpeg,image/png,image/webp" />
+                </label>
+                <label class="diy-image-drop">
+                  <span class="material-symbols-outlined" aria-hidden="true">flip_to_back</span>
+                  <strong>Custom back override</strong>
+                  <small>Optional</small>
+                  <input id="diyBackImage" type="file" accept="image/jpeg,image/png,image/webp" />
+                </label>
+                <div id="diyUploadPreview" class="diy-upload-preview" aria-live="polite">
+                  <span class="material-symbols-outlined" aria-hidden="true">image</span>
+                  <span>Generated card preview</span>
+                </div>
+              </div>
+              <div class="diy-generator-actions">
+                <span id="diyGeneratorCredit">Player photo credit appears on the generated card back.</span>
+                <button id="diyRegeneratePreview" class="ghost-button compact-button" type="button">
+                  <span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>
+                  Generate preview
+                </button>
+              </div>
+              <label class="diy-attestation">
+                <input id="diyAttestation" type="checkbox" required />
+                <span>I created or have permission to use this design, and it is not represented as an official manufacturer or grading-company issue.</span>
+              </label>
+              <div class="diy-publish-row">
+                <label>
+                  After upload
+                  <select id="diyPublishIntent">
+                    <option value="library">Keep in library</option>
+                    <option value="showcase">Publish for display</option>
+                    <option value="trade">List for trade</option>
+                    <option value="sale">List for sale</option>
+                  </select>
+                </label>
+                <label id="diyQuickPriceField" class="hidden">
+                  Asking price (RMB)
+                  <input id="diyQuickPrice" type="number" min="0" step="1" placeholder="299" />
+                </label>
+                <button class="primary-button" type="submit">
+                  <span class="material-symbols-outlined" aria-hidden="true">publish</span>
+                  Save DIY card
+                </button>
+              </div>
+              <span id="diyUploadStatus" class="inline-status" aria-live="polite"></span>
+            </form>
+            <datalist id="diySeriesOptions"></datalist>
+            <datalist id="diyPlayerOptions"></datalist>
+            <datalist id="diyParallelOptions"></datalist>
+          </section>
+
+          <section class="diy-library-panel" aria-labelledby="diyLibraryTitle">
+            <div class="section-heading compact-heading">
+              <div>
+                <h3 id="diyLibraryTitle">DIY library</h3>
+                <p id="diyLibrarySummary">0 original cards</p>
+              </div>
+              <button id="diyClearFilters" class="ghost-button compact-button" type="button">Clear filters</button>
+            </div>
+            <div class="diy-filter-bar">
+              <label>
+                Search
+                <input id="diySearch" placeholder="Series, player, parallel..." />
+              </label>
+              <label>
+                Series
+                <select id="diySeriesFilter"><option value="">All series</option></select>
+              </label>
+              <label>
+                Player
+                <select id="diyPlayerFilter"><option value="">All players</option></select>
+              </label>
+              <label>
+                Parallel
+                <select id="diyParallelFilter"><option value="">All parallels</option></select>
+              </label>
+            </div>
+            <div id="diyLibraryGrid" class="diy-card-grid" aria-live="polite"></div>
+            <div id="diyLibraryEmpty" class="trade-empty hidden">No DIY cards match these filters.</div>
+          </section>
+        </div>
+
+        <div id="diyMarketView" class="diy-view hidden" role="tabpanel">
+          <section class="diy-listing-panel" aria-labelledby="diyListingTitle">
+            <div class="section-heading compact-heading">
+              <div>
+                <h3 id="diyListingTitle">Publish a listing</h3>
+                <p>Select a DIY card from your library and choose the offer type.</p>
+              </div>
+              <span class="diy-unofficial-badge">Creator listing</span>
+            </div>
+            <form id="diyListingForm" class="diy-listing-form">
+              <label>
+                DIY card
+                <select id="diyListingCard" required><option value="">Choose a DIY card</option></select>
+              </label>
+              <div class="field-grid compact-grid">
+                <label>
+                  Listing type
+                  <select id="diyListingType">
+                    <option value="showcase">Display only</option>
+                    <option value="trade">For trade</option>
+                    <option value="sale">For sale</option>
+                  </select>
+                </label>
+                <label id="diyListingPriceField" class="hidden">
+                  Asking price (RMB)
+                  <input id="diyListingPrice" type="number" min="0" step="1" placeholder="299" />
+                </label>
+                <label>
+                  Ships from
+                  <input id="diyListingLocation" maxlength="60" placeholder="Shanghai, China" />
+                </label>
+              </div>
+              <label id="diyListingWantedField" class="hidden">
+                Looking for
+                <input id="diyListingWanted" maxlength="140" placeholder="Another DIY card, licensed card, or open offers" />
+              </label>
+              <label>
+                Listing note
+                <textarea id="diyListingNote" rows="3" maxlength="360" placeholder="Condition, shipping, trade preferences, or creator story..."></textarea>
+              </label>
+              <button class="primary-button" type="submit">
+                <span class="material-symbols-outlined" aria-hidden="true">storefront</span>
+                Publish listing
+              </button>
+              <span id="diyListingStatus" class="inline-status" aria-live="polite"></span>
+            </form>
+          </section>
+
+          <section class="diy-market-panel" aria-labelledby="diyMarketTitle">
+            <div class="section-heading compact-heading">
+              <div>
+                <h3 id="diyMarketTitle">Creator market</h3>
+                <p id="diyMarketSummary">0 active listings</p>
+              </div>
+              <div class="diy-market-actions">
+                <select id="diyMarketFilter" aria-label="Filter creator market">
+                  <option value="">All listings</option>
+                  <option value="showcase">Display only</option>
+                  <option value="trade">For trade</option>
+                  <option value="sale">For sale</option>
+                </select>
+                <select id="diyMarketSort" aria-label="Sort creator market">
+                  <option value="newest">Newest</option>
+                  <option value="priceLow">Price low-high</option>
+                  <option value="priceHigh">Price high-low</option>
+                  <option value="popular">Most requested</option>
+                </select>
+              </div>
+            </div>
+            <div id="diyMarketGrid" class="diy-market-grid" aria-live="polite"></div>
+            <div id="diyMarketEmpty" class="trade-empty hidden">No active DIY listings yet.</div>
+          </section>
+        </div>
+
+        <aside class="diy-market-notice">
+          <span class="material-symbols-outlined" aria-hidden="true">policy</span>
+          <p><strong>Creator marketplace standard:</strong> DIY cards must be clearly disclosed as unofficial. Card Ledger records requests and introductions; payment, shipping, rights, and authenticity checks remain between participants.</p>
+        </aside>
+      </section>
+
+      <section id="collectorsArea" class="social-panel workspace-panel" data-panel="collectors" aria-labelledby="collectorsTitle">
+        <div class="section-heading">
+          <h2 id="collectorsTitle">Collectors</h2>
+        </div>
+        <form id="friendForm" class="inline-form">
+          <label>
+            Add Friend / Follow
+            <input id="friendEmail" type="email" placeholder="collector@example.com" />
+          </label>
+          <label>
+            Display Name
+            <input id="friendName" placeholder="Collector name" />
+          </label>
+          <button class="primary-button" type="submit">Add</button>
+        </form>
+        <div id="friendList" class="friend-list"></div>
+        <div class="section-heading compact-heading">
+          <h3>Public Collections</h3>
+          <span id="publicCollectorCount" class="alert-count">0 visible</span>
+        </div>
+        <div id="profileViewer" class="profile-viewer hidden"></div>
+        <div id="publicCollectors" class="public-collectors"></div>
+        <div class="section-heading compact-heading">
+          <h3>Purchase Requests</h3>
+          <span id="purchaseRequestCount" class="alert-count">0 requests</span>
+        </div>
+        <div id="purchaseRequests" class="purchase-requests"></div>
+      </section>
+
+      <section id="communityArea" class="community-panel workspace-panel" data-panel="community" aria-labelledby="communityTitle">
+        <div class="section-heading community-page-heading">
+          <div>
+            <h2 id="communityTitle">Community</h2>
+            <p>Share cards, goals, trade ideas, and what you are chasing.</p>
+          </div>
+          <button id="clearCommunityPost" class="ghost-button compact-button" type="button">Clear</button>
+        </div>
+        <div id="communityProfileViewer" class="profile-viewer hidden"></div>
+        <div class="community-shell">
+          <form id="communityPostForm" class="community-composer">
+            <textarea id="communityPostNote" rows="3" placeholder="Share an update with the collecting community..."></textarea>
+            <div class="field-grid compact-grid">
+              <label>
+                Card from My Collection
+                <select id="communityPostCard">
+                  <option value="">No card selected</option>
+                </select>
+              </label>
+              <label>
+                Intent
+                <select id="communityPostIntent">
+                  <option value="share">Share</option>
+                  <option value="trade">Trade</option>
+                  <option value="sell">Sell</option>
+                  <option value="want">Want another</option>
+                </select>
+              </label>
+            </div>
+            <div class="format-strip">Optional cards: Year | Brand | Set | Player | Type | Parallel | Number</div>
+            <textarea id="communityPostCards" rows="3" placeholder="2018-19 | Panini | Donruss Optic | Luka Doncic | Base | Mojo Red /88 | 177"></textarea>
+            <div class="composer-actions">
+              <label class="ghost-button image-import">
+                Photo
+                <input id="communityPostPhoto" type="file" accept="image/*" />
+              </label>
+              <button id="postMissingGoals" class="ghost-button" type="button">Use Missing Goals</button>
+              <button class="primary-button" type="submit">Post</button>
+            </div>
+          </form>
+        </div>
+        <div class="community-discovery">
+          <section>
+            <div class="section-heading compact-heading">
+              <h3>Feed</h3>
+              <div class="filter-row">
+                <input id="communityFeedSearch" placeholder="Search posts..." />
+                <select id="communityFeedFilter">
+                  <option value="">All posts</option>
+                  <option value="trade">Trade</option>
+                  <option value="sell">Sell</option>
+                  <option value="want">Want another</option>
+                  <option value="share">Share</option>
+                </select>
+              </div>
+            </div>
+          </section>
+          <section>
+            <div class="section-heading compact-heading">
+              <h3>Collectors</h3>
+              <div class="filter-row">
+                <input id="communityCollectorSearch" placeholder="Find collectors..." />
+                <select id="communityCollectorSort">
+                  <option value="valueDesc">Value</option>
+                  <option value="scoreDesc">Score</option>
+                  <option value="nameAsc">Name</option>
+                </select>
+              </div>
+            </div>
+            <div id="communityCollectors" class="public-collectors"></div>
+          </section>
+          <section>
+            <div class="section-heading compact-heading">
+              <h3>Trade Posts</h3>
+              <div class="filter-row">
+                <input id="communityTradeSearch" placeholder="Find trade posts..." />
+                <select id="communityTradeSort">
+                  <option value="newest">Newest</option>
+                  <option value="wantsDesc">Most wanted</option>
+                  <option value="likesDesc">Most liked</option>
+                </select>
+              </div>
+            </div>
+            <div id="communityTradePosts" class="trade-list"></div>
+          </section>
+          <section>
+            <div class="section-heading compact-heading">
+              <h3>Private Chats</h3>
+            </div>
+            <form id="chatForm" class="chat-form">
+              <input id="chatParticipants" placeholder="Participants, comma separated" />
+              <textarea id="chatMessage" rows="2" placeholder="Start a private or group chat..."></textarea>
+              <button class="primary-button" type="submit">Send</button>
+            </form>
+            <div id="chatList" class="chat-list"></div>
+          </section>
+        </div>
+          <div id="communityEmpty" class="trade-empty">No posts yet. Create a post with a card, photo, or missing goal.</div>
+        <div id="communityFeed" class="community-feed"></div>
+      </section>
+
+        <section id="goalArea" class="goal-panel workspace-panel" data-panel="goals" aria-labelledby="goalTitleHeading">
+          <div class="section-heading">
+            <h2 id="goalTitleHeading">Collecting Goals</h2>
+            <div class="section-heading-actions">
+              <span id="goalQuotaBadge" class="quota-badge">3 goals</span>
+              <button id="toggleGoalForm" class="ghost-button compact-button" type="button" aria-expanded="false" aria-controls="goalForm">
+                <span class="material-symbols-outlined" aria-hidden="true">add</span>
+                <span>Add goal</span>
+              </button>
+            </div>
+          </div>
+          <form id="goalForm" class="goal-form hidden">
+            <div class="goal-form-toolbar">
+              <strong>Create a collecting goal</strong>
+              <button id="resetGoalForm" class="ghost-button compact-button" type="button">Clear</button>
+            </div>
+            <label>
+              Run Name
+              <input id="goalTitle" placeholder="Stephen Curry Prizm Silver Run" />
+            </label>
+            <div class="field-grid">
+              <label>
+                Player
+                <input id="goalPlayer" placeholder="Stephen Curry" />
+              </label>
+              <label>
+                Set
+                <input id="goalSet" placeholder="Panini Prizm" />
+              </label>
+              <label>
+                Parallel
+                <input id="goalParallel" placeholder="Silver" />
+              </label>
+              <label>
+                Season
+                <input id="goalSeason" placeholder="2018-19" />
+              </label>
+              <label>
+                Checklist By
+                <select id="goalType">
+                  <option value="year">Year</option>
+                  <option value="number">Card #</option>
+                </select>
+              </label>
+              <label>
+                Start Year
+                <input id="goalStartYear" type="number" min="1900" max="2100" placeholder="2012" />
+              </label>
+              <label>
+                End Year
+                <input id="goalEndYear" type="number" min="1900" max="2100" placeholder="2025" />
+              </label>
+              <label>
+                Start No.
+                <input id="goalStartNumber" type="number" min="1" max="9999" placeholder="1" />
+              </label>
+              <label>
+                End No.
+                <input id="goalEndNumber" type="number" min="1" max="9999" placeholder="200" />
+              </label>
+            </div>
+            <label>
+              Notes
+              <textarea id="goalNotes" rows="2" placeholder="What makes this run complete?"></textarea>
+            </label>
+            <button class="primary-button" type="submit">Save Goal</button>
+          </form>
+          <section class="goal-library-bar" aria-labelledby="goalLibraryTitle">
+            <div class="goal-library-title">
+              <span class="material-symbols-outlined" aria-hidden="true">checklist</span>
+              <span>
+                <strong id="goalLibraryTitle">All Collection Goals</strong>
+                <small id="goalLibraryCount">0 goals</small>
+              </span>
+            </div>
+            <div class="goal-library-actions">
+              <button id="expandAllGoals" class="ghost-button compact-button" type="button">
+                <span class="material-symbols-outlined" aria-hidden="true">unfold_more</span>
+                <span>Expand all</span>
+              </button>
+              <button id="collapseAllGoals" class="ghost-button compact-button" type="button">
+                <span class="material-symbols-outlined" aria-hidden="true">unfold_less</span>
+                <span>Collapse all</span>
+              </button>
+            </div>
+          </section>
+          <div id="goalEmpty" class="trade-empty">No goals yet. Add a run to track what you own and what is missing.</div>
+          <div id="goalList" class="goal-list"></div>
+        </section>
+
+        <section id="alertArea" class="alert-panel workspace-panel" data-panel="alerts" aria-labelledby="alertTitle">
+          <div class="section-heading">
+            <h2 id="alertTitle">Missing Alerts</h2>
+            <div class="section-actions">
+              <span id="alertCount" class="alert-count">0 watching</span>
+              <button id="toggleAlerts" class="ghost-button compact-button" type="button">Show Alerts</button>
+            </div>
+          </div>
+          <div id="alertEmpty" class="trade-empty">No missing cards to watch. Add or update a collecting goal.</div>
+          <div id="alertList" class="alert-list"></div>
+        </section>
+
+        <section id="marketArea" class="market-panel workspace-panel" data-panel="market" aria-labelledby="marketTitle">
+          <div class="sport-index-heading">
+            <div>
+              <p class="section-kicker">Collection research</p>
+              <h2>Sports Card Indices</h2>
+              <p>Equal-weighted performance by sport, built only from completed sales attached to your cards.</p>
+            </div>
+            <details class="index-methodology">
+              <summary>Methodology</summary>
+              <p>Each eligible card starts at 100. The index averages card-level change from the earliest to latest completed sale in the selected 12-month window. Asking prices are excluded.</p>
+            </details>
+          </div>
+          <div id="sportIndices" class="sport-index-grid" aria-live="polite"></div>
+          <p id="sportIndexUpdated" class="sport-index-updated"></p>
+          <div class="section-heading">
+            <h2 id="marketTitle">Recent Sales</h2>
+          </div>
+          <div id="marketCharts" class="market-charts"></div>
+        </section>
+
+      <section id="tradeArea" class="trade-panel workspace-panel" data-panel="trades" aria-labelledby="tradeTitle">
+          <div class="section-heading">
+            <h2 id="tradeTitle">Trades</h2>
+            <div class="trade-net">
+              <small>Net Cash</small>
+              <span id="tradeNet">RMB 0</span>
+            </div>
+          </div>
+          <form id="tradePostForm" class="trade-post-form">
+            <div class="format-strip">Year | Brand | Set | Player | Type | Parallel | Number</div>
+            <textarea id="tradePostCards" rows="3" placeholder="2018-19 | Panini | Donruss Optic | Trae Young | Auto | On-card | 198"></textarea>
+            <label>
+              Photo
+              <input id="tradePostPhoto" type="file" accept="image/*" />
+            </label>
+            <label>
+              Trade Post
+              <textarea id="tradePostNote" rows="2" placeholder="Available for trade. Looking for Curry Silver or Optic rookies."></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="primary-button" type="submit">Post Trade</button>
+              <button id="clearTradePost" class="ghost-button" type="button">Clear</button>
+            </div>
+          </form>
+          <div id="tradeEmpty" class="trade-empty">No trades yet. Build a deal or record a completed trade.</div>
+          <div id="tradeList" class="trade-list"></div>
+        </section>
+
+      <section id="collectorTrustArea" class="collector-trust-panel workspace-panel" data-panel="collectorTrust" aria-labelledby="collectorTrustTitle">
+        <div class="section-heading"><div><h2 id="collectorTrustTitle">Collector trust and contracts</h2><p>Document identity checks, inspection terms, and deal agreements without handling funds.</p></div><span class="role-badge">Non-custodial</span></div>
+        <div class="trust-grid">
+          <form id="verificationForm">
+            <h3>Buyer / seller verification</h3>
+            <label>Collector or business<input id="verificationName" required /></label>
+            <label>Verification type<select id="verificationType"><option>Identity reviewed</option><option>References checked</option><option>Card ownership checked</option><option>Business verified</option></select></label>
+            <label>Evidence note<textarea id="verificationNote" rows="2" placeholder="Do not enter government ID numbers"></textarea></label>
+            <button class="primary-button compact-button" type="submit">Record check</button>
+            <div id="verificationList" class="operation-list"></div>
+          </form>
+          <form id="dealContractForm">
+            <h3>Deal contract</h3>
+            <label>Agreement title<input id="contractTitle" required placeholder="Curry / Doncic card trade" /></label>
+            <label>Participants<input id="contractParticipants" required placeholder="Collector names" /></label>
+            <div class="contract-checks"><label><input id="contractInspection" type="checkbox" checked /> Inspection required</label><label><input id="contractAuthenticity" type="checkbox" checked /> Authenticity guaranteed</label><label><input id="contractShipping" type="checkbox" checked /> Tracked shipping</label></div>
+            <label>Terms<textarea id="contractTerms" rows="3" placeholder="Condition, return window, shipping responsibility"></textarea></label>
+            <button class="primary-button compact-button" type="submit">Create agreement</button>
+            <div id="dealContractList" class="operation-list"></div>
+          </form>
+        </div>
+        <div class="reserved-feature compact-reserved"><span>Partner reserved</span><p>Escrow funding, payment custody, paid inspection, electronic signatures, and reputation checks require licensed third-party providers. Stable hooks are reserved as <code>escrow_provider</code>, <code>inspection_provider</code>, and <code>signature_provider</code>.</p></div>
+      </section>
+
+      <section id="provenanceArea" class="provenance-panel workspace-panel" data-panel="provenance" aria-labelledby="provenanceTitle">
+        <div class="section-heading"><div><h2 id="provenanceTitle">Provenance and custody</h2><p>Keep a permanent non-financial history for important cards.</p></div><span class="role-badge">Append only</span></div>
+        <form id="provenanceForm" class="provenance-form">
+          <label>Card<select id="provenanceCard"></select></label>
+          <label>Date<input id="provenanceDate" type="date" required /></label>
+          <label>Event<select id="provenanceType"><option>Ownership documented</option><option>Certification verified</option><option>Vault transfer</option><option>Condition inspection</option><option>Restoration disclosure</option><option>Exhibition / publication</option></select></label>
+          <label>Source or custodian<input id="provenanceSource" placeholder="Auction house, vault, grader, collector" /></label>
+          <label>Disclosure<textarea id="provenanceDetails" rows="3" required></textarea></label>
+          <label>Supporting document<input id="provenanceDocument" type="file" /></label>
+          <button class="primary-button" type="submit">Append event</button>
+        </form>
+        <div id="provenanceTimeline" class="provenance-timeline"></div>
+        <div class="reserved-feature-grid">
+          <article class="reserved-feature"><span>Historical data reserved</span><h3>Prior sales and auction lots</h3><p>Fields and cloud tables are reserved, but no transaction history will be created before marketplace records are connected.</p></article>
+          <article class="reserved-feature"><span>Valuation reserved</span><h3>Human appraisals</h3><p>Appraiser identity, appraisal documents, comparable weighting, and monetary conclusions remain dormant until the valuation system is activated.</p></article>
+        </div>
+      </section>
+
+      <section id="auctionCalendarArea" class="auction-calendar-panel workspace-panel" data-panel="auctionCalendar" aria-labelledby="auctionCalendarTitle">
+        <div class="section-heading"><div><h2 id="auctionCalendarTitle">Auction and consignment calendar</h2><p>Track dates and workflow status across major platforms without recording bids or prices.</p></div><span class="role-badge">Calendar only</span></div>
+        <form id="auctionCalendarForm" class="auction-calendar-form">
+          <label>Platform<select id="auctionPlatform"><option>Goldin</option><option>Fanatics Collect</option><option>Heritage</option><option>REA</option><option>PWCC</option><option>CardHobby</option><option>eBay</option><option>Other</option></select></label>
+          <label>Event or lot<input id="auctionEventTitle" required /></label>
+          <label>Date<input id="auctionEventDate" type="date" required /></label>
+          <label>Workflow<select id="auctionEventStatus"><option>Watching</option><option>Registered</option><option>Consignment preparing</option><option>Submitted</option><option>Inspection</option><option>Completed</option></select></label>
+          <label>Notes<input id="auctionEventNotes" placeholder="Lot URL, contact, document checklist" /></label>
+          <button class="primary-button" type="submit">Add calendar item</button>
+        </form>
+        <div id="auctionCalendarList" class="auction-calendar-list"></div>
+        <div class="reserved-feature compact-reserved"><span>Financial controls reserved</span><p>Bid amounts, hammer prices, buyer premiums, consignment proceeds, and comparable-sale calculations will be added only after verified platform connections exist.</p></div>
+      </section>
+
+      <section id="dealRoomArea" class="deal-room-panel workspace-panel" data-panel="dealRoom" aria-labelledby="dealRoomTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="dealRoomTitle">Deals</h2>
+            <p>Private trade or sale workflow with status tracking.</p>
+          </div>
+          <button id="clearDealRoom" class="ghost-button compact-button" type="button">Clear</button>
+        </div>
+        <form id="dealRoomForm" class="deal-room-form">
+          <div class="field-grid compact-grid">
+            <label>
+              Participants
+              <input id="dealRoomParticipants" placeholder="James, Alex, Card shop" />
+            </label>
+            <label>
+              Deal Type
+              <select id="dealRoomType">
+                <option value="trade">Trade</option>
+                <option value="purchase">Purchase</option>
+                <option value="sale">Sale</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="dealRoomStatus">
+                <option value="negotiating">Negotiating</option>
+                <option value="accepted">Accepted</option>
+                <option value="paid">Paid</option>
+                <option value="shipped">Shipped</option>
+                <option value="completed">Completed</option>
+              </select>
+            </label>
+          </div>
+          <div class="format-strip">Cards: Year | Brand | Set | Player | Type | Parallel | Number | Value RMB</div>
+          <div class="trade-ai-grid">
+            <label>
+              My Side
+              <textarea id="dealRoomMine" rows="4" placeholder="2018-19 | Panini | Donruss Optic | Jalen Brunson | Base | Mojo Red /88 | 179 | 3173"></textarea>
+            </label>
+            <label>
+              Their Side
+              <textarea id="dealRoomTheirs" rows="4" placeholder="2018-19 | Panini | Donruss Optic | Shai Gilgeous-Alexander | Base | Holo | 162 | 1105"></textarea>
+            </label>
+          </div>
+          <div class="field-grid compact-grid">
+            <label>
+              Cash I Pay
+              <input id="dealRoomCashPaid" type="number" min="0" step="0.01" value="0" />
+            </label>
+            <label>
+              Cash I Receive
+              <input id="dealRoomCashReceived" type="number" min="0" step="0.01" value="0" />
+            </label>
+            <label>
+              Notes
+              <input id="dealRoomNotes" placeholder="Shipping, payment, condition checks" />
+            </label>
+          </div>
+          <button class="primary-button" type="submit">Save Deal</button>
+        </form>
+        <div id="dealRoomList" class="trade-list"></div>
+      </section>
+    </main>
+
+    <template id="cardTemplate">
+      <article class="collection-card">
+        <div class="mini-card" aria-hidden="true">
+          <span class="mini-sport"></span>
+          <strong class="mini-year"></strong>
+        </div>
+        <div class="card-details">
+          <h3></h3>
+          <p class="meta"></p>
+          <details class="notes-details">
+            <summary>View notes</summary>
+            <p class="notes"></p>
+          </details>
+          <dl>
+            <div><dt>Qty</dt><dd class="qty"></dd></div>
+            <div><dt>Paid</dt><dd class="paid"></dd></div>
+            <div><dt>Value</dt><dd class="value"></dd></div>
+          </dl>
+          <dl class="source-values">
+            <div><dt>eBay Est.</dt><dd class="ebay-value"></dd></div>
+            <div><dt>CardHobby Est.</dt><dd class="cardhobby-value"></dd></div>
+          </dl>
+          <p class="valuation-method"></p>
+          <p class="psa-population-summary"></p>
+          <p class="condition-estimate-summary hidden"></p>
+          <details class="investment-score-details">
+            <summary>
+              <span>Investment score</span>
+              <strong class="investment-score-value">--</strong>
+            </summary>
+            <p class="investment-score-summary"></p>
+            <div class="investment-score-breakdown"></div>
+            <small>Research signal only, not financial advice.</small>
+          </details>
+          <details class="price-details">
+            <summary>Price trend</summary>
+            <div class="card-price-chart"></div>
+          </details>
+          <p class="location"></p>
+          <div class="actions">
+            <button class="edit-button" type="button">Edit</button>
+            <button class="delete-button" type="button">Delete</button>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="./set-catalog.js?v=3"></script>
+    <script src="./card-selectors.js?v=3"></script>
+    <script src="./app.js?v=98"></script>
+    <script src="./vendor/qrcode.min.js?v=1.0.0"></script>
+    <script src="./advanced.js?v=54"></script>
+  </body>
+</html>

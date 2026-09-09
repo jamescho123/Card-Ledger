@@ -1,0 +1,7 @@
+project_id = "wmvffpuxrdbsexryazxu"
+
+[functions.market-data]
+verify_jwt = false
+
+[functions.generate-diy-card]
+verify_jwt = true

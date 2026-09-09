@@ -1,0 +1,55 @@
+/* Palette layer intentionally loads after the shared layout stylesheet. */
+:root[data-theme="emerald"] {
+  --theme-bg: #090d0c; --theme-header: #0d1210; --theme-sidebar: #111714; --theme-rgb: 156, 210, 181;
+  --ink: #f2f5f2; --text: #f2f5f2; --muted: #aab7af; --line: #334139; --panel: #171d1a;
+  --soft: #202923; --field: #0d1411; --accent: #9cd2b5; --accent-dark: #075036; --gold: #e9c176;
+  --red: #ff8a83; --surface-raised: #202823; --surface-tint: #13251d; --focus-ring: rgba(156, 210, 181, 0.42);
+}
+
+:root[data-theme="midnight"] {
+  --theme-bg: #07101d; --theme-header: #0a1422; --theme-sidebar: #0d1828; --theme-rgb: 85, 199, 222;
+  --ink: #eef6ff; --text: #eef6ff; --muted: #a9bacb; --line: #31465d; --panel: #101b2c;
+  --soft: #17253a; --field: #091321; --accent: #55c7de; --accent-dark: #0c4b63; --gold: #f2b84b;
+  --red: #ff7377; --surface-raised: #17253a; --surface-tint: #0d2633; --focus-ring: rgba(85, 199, 222, 0.42);
+}
+
+:root[data-theme="crimson"] {
+  --theme-bg: #16080d; --theme-header: #1c0b11; --theme-sidebar: #211017; --theme-rgb: 243, 91, 116;
+  --ink: #fff0f3; --text: #fff0f3; --muted: #d1acb5; --line: #5b2b39; --panel: #261019;
+  --soft: #331621; --field: #17090f; --accent: #f35b74; --accent-dark: #6f142c; --gold: #efbd57;
+  --red: #ff9d73; --surface-raised: #331621; --surface-tint: #35131f; --focus-ring: rgba(243, 91, 116, 0.42);
+}
+
+:root[data-theme="titanium"] {
+  --theme-bg: #0d0f13; --theme-header: #12151a; --theme-sidebar: #15181e; --theme-rgb: 168, 221, 74;
+  --ink: #f2f4f7; --text: #f2f4f7; --muted: #b0b6c0; --line: #424955; --panel: #181b21;
+  --soft: #232831; --field: #101319; --accent: #a8dd4a; --accent-dark: #3d5a13; --gold: #c6d0da;
+  --red: #ff7468; --surface-raised: #232831; --surface-tint: #20271b; --focus-ring: rgba(168, 221, 74, 0.42);
+}
+
+html, body { background-color: var(--theme-bg) !important; }
+body {
+  background-image:
+    radial-gradient(circle at 78% 5%, rgba(var(--theme-rgb), 0.08), transparent 30%),
+    radial-gradient(circle at 18% 88%, rgba(var(--theme-rgb), 0.045), transparent 34%) !important;
+}
+body::before { background: linear-gradient(125deg, rgba(var(--theme-rgb), 0.03), transparent 34%, rgba(var(--theme-rgb), 0.025)) !important; }
+.app-header, .topbar, body[data-active-page="landing"] .app-header {
+  background-color: color-mix(in srgb, var(--theme-header) 94%, transparent) !important;
+  border-color: var(--line) !important;
+}
+.asset-sidebar { background-color: color-mix(in srgb, var(--theme-sidebar) 97%, transparent) !important; border-color: var(--line) !important; }
+.panel, .metric, .collection-card, .goal-card, .market-card, .trade-card, .community-post, .account-dialog, .modal-card {
+  border-color: color-mix(in srgb, var(--line) 78%, var(--accent)) !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2), inset 0 1px rgba(var(--theme-rgb), 0.035);
+}
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline-color: var(--focus-ring) !important; }
+.theme-picker, .language-picker {
+  min-height: 40px; border: 1px solid color-mix(in srgb, var(--line) 78%, var(--accent)); border-radius: 6px;
+  padding-left: 8px; background: color-mix(in srgb, var(--field) 88%, transparent);
+}
+.theme-picker select, .language-picker select { border: 0; background: transparent; }
+@media (max-width: 760px) {
+  .theme-picker .material-symbols-outlined { display: none; }
+  .theme-picker select, .language-picker select { max-width: 112px; }
+}

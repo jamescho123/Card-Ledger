@@ -1,0 +1,26 @@
+.DS_Store
+.agents/
+skills-lock.json
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+supabase/.env
+supabase/.branches/
+supabase/.temp/
+
+# Web dependencies and generated checks
+node_modules/
+outputs/*-check.png
+outputs/sports-card-import.json
+
+# Xcode and Swift build output
+**/xcuserdata/
+*.xcuserstate
+DerivedData/
+.build/
+.swiftpm/
+build/
+*.ipa
+*.dSYM/
