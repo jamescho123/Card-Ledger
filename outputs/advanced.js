@@ -116,6 +116,7 @@
   }
 
   function cardIdentity(card) {
+    if (card.hciCardId) return `hci:${card.hciCardId}`;
     return [card.year, card.brand, card.setName, card.player, card.type, card.parallel, card.cardNumber, card.grade]
       .map((part) => text(part).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim())
       .join("|");
@@ -312,7 +313,7 @@
     const lists = {
       cardYearOptions: [...new Set(data.map((card) => card.year).filter(Boolean))],
       cardPlayerOptions: [...new Set(data.map((card) => card.player).filter(Boolean))],
-      cardTypeOptions: [...new Set(data.flatMap((card) => [card.type, "Base", "Rookie", "Insert", "Autograph", "Memorabilia"]).filter(Boolean))],
+      cardTypeOptions: [...new Set(data.flatMap((card) => [card.type, "Base", "Rookie", "Insert", "Autograph", "Memorabilia", "Jersey", "Patch", "Autograph Memorabilia", "Other"]).filter(Boolean))],
       cardParallelOptions: [...new Set(data.flatMap((card) => [card.parallel, "Silver", "Refractor", "Holo", "Gold", "Red", "Base"]).filter(Boolean))]
     };
     Object.entries(lists).forEach(([id, values]) => {
@@ -599,7 +600,7 @@
 
   const csvTargets = [
     ["year", "Year", true], ["brand", "Brand / manufacturer"], ["setName", "Set", true], ["player", "Player / subject", true],
-    ["type", "Type"], ["parallel", "Parallel"], ["cardNumber", "Card number"],
+    ["type", "Type"], ["insertName", "Insert / subset name"], ["cardDescription", "Autograph / memorabilia details"], ["parallel", "Parallel"], ["cardNumber", "Card number"],
     ["sport", "Sport"], ["condition", "Condition"], ["grade", "Grade"],
     ["quantity", "Quantity"], ["location", "Location"], ["notes", "Notes"]
   ];
@@ -608,6 +609,7 @@
     const aliases = {
       year: ["year", "season"], brand: ["brand", "manufacturer", "publisher", "maker"], setName: ["set", "set name", "product", "program"], player: ["player", "subject", "name"],
       type: ["type", "insert"], parallel: ["parallel", "variation"], cardNumber: ["number", "card number", "card no"],
+      insertName: ["insertname", "insert name", "subset", "subset name"], cardDescription: ["carddescription", "card description", "autograph / memorabilia details"],
       sport: ["sport", "category"], condition: ["condition"], grade: ["grade"], quantity: ["quantity", "qty", "copies"],
       location: ["location", "box", "binder", "vault"], notes: ["notes", "description"]
     };
@@ -632,6 +634,7 @@
     const card = {
       id: uuid(), createdAt: now, updatedAt: now, year: value("year"), brand: value("brand"), setName: value("setName"), player: value("player"),
       type: value("type"), parallel: value("parallel"), cardNumber: value("cardNumber"), sport: value("sport") || "Other",
+      insertName: value('insertName'), cardDescription: value('cardDescription'),
       condition: value("condition") || "Raw", grade: value("grade"), quantity, location: value("location"), notes: value("notes"),
       paid: 0, value: 0, portfolioId: state.activePortfolioId, revision: 1, deviceId: deviceId()
     };
@@ -813,7 +816,9 @@
     const pages = Math.max(1, Math.ceil(state.resultCount / state.pageSize));
     const summary = document.querySelector("#collectionResultSummary");
     const indicator = document.querySelector("#collectionPageIndicator");
-    if (summary) summary.textContent = `${state.resultCount.toLocaleString()} cards`;
+    if (summary) summary.textContent = bridge.getLanguage() === "zh-CN"
+      ? `${state.resultCount.toLocaleString()} 张卡片`
+      : `${state.resultCount.toLocaleString()} card${state.resultCount === 1 ? "" : "s"}`;
     if (indicator) indicator.textContent = `${state.page} / ${pages}`;
     const previous = document.querySelector("#collectionPreviousPage");
     const next = document.querySelector("#collectionNextPage");
@@ -877,8 +882,8 @@
     document.querySelector("#portfolioSpaceList")?.addEventListener("click", (event) => { if (event.target.dataset.portfolio) { state.activePortfolioId = event.target.dataset.portfolio; state.page = 1; selectedCards.clear(); saveState(); renderPortfolios(); bridge.render(); } });
   }
 
-  function addNotification(title, body, browser = false) {
-    const notification = { id: uuid(), title, body, createdAt: new Date().toISOString(), read: false };
+  function addNotification(title, body, browser = false, ownerEmail = "") {
+    const notification = { id: uuid(), title, body, ownerEmail, createdAt: new Date().toISOString(), read: false };
     state.notifications.unshift(notification);
     state.notifications = state.notifications.slice(0, 100);
     saveState(); renderNotifications();
@@ -888,14 +893,16 @@
   function renderWatchlist() {
     const target = document.querySelector("#watchlistList");
     if (!target) return;
-    target.innerHTML = state.watchlist.length ? state.watchlist.map((item) => `<article><div><strong>${html(item.card)}</strong><p>${html(item.priority)} priority · ${item.channels.inApp ? "In-app" : ""}${item.channels.browser ? " · Browser" : ""} · added ${new Date(item.createdAt).toLocaleDateString()}</p></div><button class="delete-button compact-button" type="button" data-delete-watch="${html(item.id)}">Delete</button></article>`).join("") : '<div class="trade-empty">Your watchlist is independent from collecting goals. Add any card you want to monitor.</div>';
+    const watches = currentWatchlist();
+    target.innerHTML = watches.length ? watches.map((item) => `<article><div><strong>${html(item.card)}</strong><p>${html(item.priority)} priority · ${item.channels.inApp ? "In-app" : ""}${item.channels.browser ? " · Browser" : ""} · added ${new Date(item.createdAt).toLocaleDateString()}</p></div><button class="delete-button compact-button" type="button" data-delete-watch="${html(item.id)}">Delete</button></article>`).join("") : '<div class="trade-empty">Your watchlist is independent from collecting goals. Add any card you want to monitor.</div>';
   }
 
   function renderNotifications() {
     const target = document.querySelector("#notificationCenter");
     if (!target) return;
-    target.innerHTML = `<div class="section-heading compact-heading"><h3>In-app alerts</h3>${state.notifications.length ? '<button id="markAlertsRead" class="ghost-button compact-button" type="button">Mark all read</button>' : ""}</div>${state.notifications.slice(0, 12).map((item) => `<article class="${item.read ? "read" : ""}"><strong>${html(item.title)}</strong><p>${html(item.body)}</p><time>${new Date(item.createdAt).toLocaleString()}</time></article>`).join("") || '<div class="trade-empty">No alerts yet.</div>'}`;
-    document.querySelector("#markAlertsRead")?.addEventListener("click", () => { state.notifications.forEach((item) => { item.read = true; }); saveState(); renderNotifications(); });
+    const notifications = state.notifications.filter((item) => !item.ownerEmail || item.ownerEmail === watchOwnerKey());
+    target.innerHTML = `<div class="section-heading compact-heading"><h3>In-app alerts</h3>${notifications.length ? '<button id="markAlertsRead" class="ghost-button compact-button" type="button">Mark all read</button>' : ""}</div>${notifications.slice(0, 12).map((item) => `<article class="${item.read ? "read" : ""}"><strong>${html(item.title)}</strong><p>${html(item.body)}</p><time>${new Date(item.createdAt).toLocaleString()}</time></article>`).join("") || '<div class="trade-empty">No alerts yet.</div>'}`;
+    document.querySelector("#markAlertsRead")?.addEventListener("click", () => { notifications.forEach((item) => { item.read = true; }); saveState(); renderNotifications(); });
   }
 
   function renderWeeklyRefresh() {
@@ -1580,8 +1587,8 @@
       await Promise.all([
         upsertAdvancedTable("portfolios", state.portfolios.map((item) => ({ user_id, id: item.id, name: item.name, portfolio_type: item.type, revision: item.revision || 1, device_id: deviceId(), created_at: item.createdAt }))),
         upsertAdvancedTable("card_copies", bridge.getCards().flatMap((card) => normalizeCopies(card).map((copy) => ({ user_id, id: copy.id, card_id: card.id, serial_number: copy.serialNumber || "", certification: copy.certification || "", grade: copy.grade || "", location: copy.location || card.location || "", revision: card.revision || 1, device_id: deviceId(), created_at: copy.createdAt || card.createdAt })))),
-        upsertAdvancedTable("watchlist_items", state.watchlist.map((item) => ({ user_id, id: item.id, card_query: item.card, priority: item.priority, in_app_enabled: Boolean(item.channels.inApp), browser_enabled: Boolean(item.channels.browser), email_enabled: false, created_at: item.createdAt }))),
-        upsertAdvancedTable("notifications", state.notifications.map((item) => ({ user_id, id: item.id, title: item.title, body: item.body, notification_type: "in_app", read_at: item.read ? item.createdAt : null, created_at: item.createdAt }))),
+        upsertAdvancedTable("watchlist_items", currentWatchlist().map((item) => ({ user_id, id: item.id, card_query: item.card, priority: item.priority, in_app_enabled: Boolean(item.channels.inApp), browser_enabled: Boolean(item.channels.browser), email_enabled: false, created_at: item.createdAt }))),
+        upsertAdvancedTable("notifications", state.notifications.filter((item) => !item.ownerEmail || item.ownerEmail === watchOwnerKey()).map((item) => ({ user_id, id: item.id, title: item.title, body: item.body, notification_type: "in_app", read_at: item.read ? item.createdAt : null, created_at: item.createdAt }))),
         upsertAdvancedTable("saved_views", state.savedViews.map((item) => ({ user_id, id: item.id, name: item.name, filters: item, created_at: item.createdAt || new Date().toISOString() }))),
         upsertAdvancedTable("activity_events", activityEvents.map((item) => ({ user_id, id: item.id, action: item.action, entity_type: item.entityType, entity_id: item.entityId, summary: item.summary, detail: item.detail || {}, device_id: item.deviceId, occurred_at: item.occurredAt })), "user_id,id", true),
         upsertAdvancedTable("provenance_events", provenanceEvents().map((item) => ({ user_id, id: item.id, card_id: bridge.getCards().some((card) => card.id === item.cardId) ? item.cardId : null, event_date: item.date, event_type: item.type, source_or_custodian: item.source || "", disclosure: item.details, document_path: null, device_id: item.deviceId, created_at: item.createdAt })), "user_id,id", true),
@@ -1607,7 +1614,48 @@
     saveSecurity(); renderSessions(); renderSecurityLevel(); syncAdvancedCloud();
   }
 
-  window.CardLedgerAdvanced = { enrichCard, recordDeletion, paginateCards, resetCollectionPage, portfolioCards, completeTradeInventory, afterRender, publicProfile, afterSupabaseSession, mergeCloudCards, syncAdvancedCloud, logActivity, syncCardSelectors };
+  function watchOwnerKey() {
+    const account = bridge.getAccount();
+    return text(account.email).toLowerCase() || (account.phone ? `phone:${text(account.phone)}` : "")
+      || (bridge.getSupabaseSettings().userId ? `user:${bridge.getSupabaseSettings().userId}` : "guest");
+  }
+  function currentWatchlist() {
+    return state.watchlist.filter((item) => (!item.ownerEmail && !item.hciCardId) || item.ownerEmail === watchOwnerKey());
+  }
+
+  function watchDatabaseCard(card) {
+    if (!bridge.requireMember("watch database cards")) return false;
+    const ownerEmail = watchOwnerKey();
+    if (state.watchlist.some((item) => item.hciCardId === card.hciCardId && item.ownerEmail === ownerEmail)) return true;
+    if (!bridge.requirePlanAccess("watchlist", currentWatchlist().length, "add more watchlist cards")) return false;
+    state.watchlist.unshift({ id: uuid(), card: bridge.fixedCardName(card), hciCardId: card.hciCardId, ownerEmail,
+      identity: card, priority: "normal", channels: { inApp: true, browser: false }, createdAt: new Date().toISOString(), matchedPosts: [] });
+    saveState(); renderWatchlist(); return true;
+  }
+
+  function checkDatabaseWatchlist(posts) {
+    let changed = false;
+    state.watchlist.filter((item) => item.hciCardId && item.ownerEmail === watchOwnerKey()).forEach((item) => {
+      item.matchedPosts ||= [];
+      posts.filter((post) => ["sell", "trade"].includes(post.intent)
+        && post.selectedCard?.hciCardId === item.hciCardId && !item.matchedPosts.includes(post.id)).forEach((post) => {
+        item.matchedPosts.push(post.id); changed = true;
+        addNotification(bridge.getLanguage() === "zh-CN" ? "关注卡片已上架" : "Watchlist match", `${post.author}: ${item.card}`, item.channels.browser, item.ownerEmail);
+      });
+    });
+    if (changed) saveState();
+  }
+
+  window.CardLedgerAdvanced = { enrichCard, recordDeletion, paginateCards, resetCollectionPage, portfolioCards, completeTradeInventory, afterRender, publicProfile, afterSupabaseSession, mergeCloudCards, syncAdvancedCloud, logActivity, syncCardSelectors,
+    collectionResultCount: () => state.resultCount,
+    watchDatabaseCard, checkDatabaseWatchlist, getDatabaseWatches: () => state.watchlist.filter((item) => item.hciCardId && item.ownerEmail === watchOwnerKey()),
+    removeDatabaseWatch: (id) => { state.watchlist = state.watchlist.filter((item) => item.id !== id || item.ownerEmail !== watchOwnerKey()); saveState(); renderWatchlist(); },
+    getDuplicateGroups: duplicateGroups, mergeDuplicateGroup,
+    mergeDatabaseDuplicates: (ids) => {
+      const groups = duplicateGroups();
+      const group = groups.find((items) => items.length === ids.length && items.every((card) => ids.includes(card.id)));
+      if (group) mergeDuplicateGroup(cardIdentity(group[0]));
+    } };
 
   function init() {
     initBeginnerFlow();

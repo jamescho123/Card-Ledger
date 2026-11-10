@@ -46,6 +46,7 @@ const MARKET_WORKSPACE_KEY = "card-ledger-market-workspace-v1";
 const FOCUS_WORKSPACE_KEY = "card-ledger-focus-workspaces-v1";
 const DEFAULT_SUPABASE_URL = "https://wmvffpuxrdbsexryazxu.supabase.co";
 const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_UX6CZtL82HAKn1zLzgfEtQ_-eqDXD4Q";
+const HCI_CARD_IDENTIFIER_URL = "http://127.0.0.1:8765";
 const USD_TO_RMB_RATE = 6.8;
 const ESTIMATE_SALE_COUNT = 3;
 const MARKET_SOURCES = ["ebay", "cardhobby", "cardladder", "market_movers", "goldin", "fanatics", "alt"];
@@ -305,6 +306,7 @@ const DIY_STARTER_LISTINGS = [
 const SCAN_PAUSED = true;
 const TRANSLATIONS = {
   "zh-CN": {
+    "Market Value": "市场估值",
     "Card Ledger": "卡藏账本",
     "Every card, clearly valued.": "卡藏，让每张卡都有账。",
     "Asset Manager": "卡藏",
@@ -587,6 +589,10 @@ const TRANSLATIONS = {
     "Choose a brand to filter the set catalog.": "先选择品牌，再从对应系列目录中查找。",
     "Player": "球员",
     "Type": "类型",
+    "Insert / subset name": "特卡 / 子系列名称",
+    "Autograph / memorabilia details": "签名 / 实物详情",
+    "All Heart, Emergent": "All Heart、Emergent 等",
+    "On-card auto, jersey patch": "卡签、贴签、球衣切片等",
     "Parallel / Variant": "平行/变体",
     "Number": "编号",
     "Sport": "运动",
@@ -709,6 +715,8 @@ const TRANSLATIONS = {
     "Waiting for both sides": "等待录入双方卡片",
     "Add cards to both sides to build fair-market, value-protection, and collector-fit proposals.": "录入双方卡片后，系统会生成公平成交、价值保护与收藏匹配三类方案。",
     "Collection": "收藏",
+    "Catalog": "图鉴",
+    "Browse full catalog": "浏览完整图鉴",
     "DIY Cards": "自制卡",
     "Creator workshop": "创作者工坊",
     "DIY Card Studio": "自制卡工坊",
@@ -1895,6 +1903,8 @@ const fields = {
   brand: document.querySelector("#brand"),
   setName: document.querySelector("#setName"),
   type: document.querySelector("#cardType"),
+  insertName: document.querySelector('#insertName'),
+  cardDescription: document.querySelector('#cardDescription'),
   cardNumber: document.querySelector("#cardNumber"),
   parallel: document.querySelector("#parallel"),
   condition: document.querySelector("#condition"),
@@ -2481,7 +2491,7 @@ let ledgerCloudSyncTimer = null;
 let viewMode = "grid";
 let collectionQuickFilter = "all";
 let alertsExpanded = false;
-let collectionExpanded = false;
+let collectionExpanded = true;
 let scanStream = null;
 let playerScanMatches = [];
 let playerScanOcrPromise = null;
@@ -2489,6 +2499,7 @@ let playerFaceApiPromise = null;
 let playerFaceReferencePromise = null;
 const playerScanImageSignatureCache = new Map();
 let playerScanIdentity = null;
+let playerScanDetectedIdentity = null;
 let pendingScannedCardImage = "";
 let globalScannerReturnFocus = null;
 let conditionStream = null;
@@ -2518,18 +2529,23 @@ let diyPreviewToken = 0;
 let marketplaceSalesCacheSource = "";
 let marketplaceSalesCache = [];
 const expandedGoalIds = new Set();
+const hasExistingLedger = localStorage.getItem(STORAGE_KEY) !== null;
 migrateCurrency();
 cleanupTestArtifacts();
-mergeSeedCards();
-mergeVerifiedMarketData();
-seedDefaultGoals();
-mergeMojoRedOwnedCards();
-mergeOpticInsertOwnedCards();
-mergeRecentPurchases();
-applyRecentPurchaseCorrections();
-applyCurryImmaculateTrade();
-applyJuly12Trades();
-applyJuly14Activity();
+// These one-time corrections belong to the original owner's local ledger.
+// New visitors must start with their own empty collection.
+if (hasExistingLedger && account.email === ADMIN_USER.email) {
+  mergeSeedCards();
+  mergeVerifiedMarketData();
+  seedDefaultGoals();
+  mergeMojoRedOwnedCards();
+  mergeOpticInsertOwnedCards();
+  mergeRecentPurchases();
+  applyRecentPurchaseCorrections();
+  applyCurryImmaculateTrade();
+  applyJuly12Trades();
+  applyJuly14Activity();
+}
 syncAllGoalSlotsFromCards();
 setupWorkspaceControls();
 applyWorkspace();
@@ -3210,6 +3226,7 @@ function salesInPastYear(card) {
 }
 
 function estimatedCardValue(card) {
+  if (card.valueMode === 'manual') return numeric(card.value);
   const recentSales = sortedSales(card).slice(-ESTIMATE_SALE_COUNT);
   if (!recentSales.length) return numeric(card.value);
   return recentSales.reduce((sum, sale) => sum + sale.value, 0) / recentSales.length;
@@ -3222,6 +3239,7 @@ function estimatedValueBySource(card, source) {
 }
 
 function valuationMethod(card) {
+  if (card.valueMode === 'manual') return 'Manual estimate';
   const recentSales = sortedSales(card).slice(-ESTIMATE_SALE_COUNT);
   if (!recentSales.length) return "Manual estimate";
   return `Average of latest ${recentSales.length} sale${recentSales.length === 1 ? "" : "s"}`;
@@ -4204,9 +4222,10 @@ function setEntryMode(mode) {
 }
 
 function panelPage(panelId) {
+  if (panelId === "catalog") return "catalog";
   if (panelId === "installApp") return "dashboard";
   if (panelId === "portfolio") return "portfolio";
-  if (panelId === "entry" || panelId === "sync" || panelId === "photoImport" || panelId === "collection" || panelId === "collectors" || panelId === "scan") return "collection";
+  if (panelId === "library" || panelId === "entry" || panelId === "sync" || panelId === "photoImport" || panelId === "collection" || panelId === "collectors" || panelId === "scan") return "collection";
   if (panelId === "diy") return "diy";
   if (panelId === "condition") return "condition";
   if (panelId === "goals" || panelId === "alerts" || panelId === "goalAssistant") return "goals";
@@ -4678,7 +4697,8 @@ async function initSportsGuyRobot3D() {
 }
 
 function setActivePage(page) {
-  const nextPage = ["landing", "dashboard", "portfolio", "collection", "diy", "condition", "goals", "market", "community", "trade", "account"].includes(page) ? page : "landing";
+  if (["diy", "condition"].includes(page)) page = "portfolio";
+  const nextPage = ["landing", "dashboard", "portfolio", "collection", "catalog", "diy", "condition", "goals", "market", "community", "trade", "account"].includes(page) ? page : "landing";
   if (activePage === nextPage && document.body.dataset.activePage === nextPage) {
     syncFocusWorkspaceWithHash();
     applyFocusWorkspaceView();
@@ -4691,9 +4711,14 @@ function setActivePage(page) {
   }
   activePage = nextPage;
   document.body.dataset.activePage = activePage;
-  const navActivePage = activePage === "landing" ? "portfolio" : activePage;
+  const inPortfolio = ["portfolio", "collection", "market"].includes(activePage);
+  document.querySelector("#portfolioSections")?.classList.toggle("hidden", !inPortfolio);
+  const navActivePage = activePage === "landing" || inPortfolio ? "portfolio" : activePage;
   els.pageButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.pageButton === navActivePage);
+    const isSubsection = Boolean(button.closest("#portfolioSections"));
+    const selected = button.dataset.pageButton === (isSubsection ? activePage : navActivePage);
+    button.classList.toggle("active", selected);
+    if (isSubsection) button.setAttribute("aria-selected", String(selected));
   });
   if (activePage === "trade") {
     setEntryMode("trade");
@@ -4715,7 +4740,7 @@ function setActivePage(page) {
   applyWorkspace();
   applyMarketWorkspaceView();
   applyFocusWorkspaceView();
-  const directorySuppressed = ["landing", "portfolio", "collection", "diy", "condition", "goals", "market", "trade", "account"].includes(activePage);
+  const directorySuppressed = ["landing", "portfolio", "collection", "catalog", "diy", "condition", "goals", "market", "trade", "account"].includes(activePage);
   const hasDirectoryTools = Array.from(els.directory?.querySelectorAll(".category-toggle") || []).some((item) => !item.classList.contains("hidden"));
   els.directory?.classList.toggle("hidden", directorySuppressed || !hasDirectoryTools);
   if (!isInitialPage) {
@@ -4728,6 +4753,7 @@ function setActivePage(page) {
 }
 
 const PAGE_SCROLL_TARGETS = {
+  catalog: "#catalogArea",
   landing: ".hero",
   dashboard: "#workspace",
   portfolio: "#portfolioArea",
@@ -4742,7 +4768,7 @@ const PAGE_SCROLL_TARGETS = {
 };
 
 function scrollActivePageIntoView(page = activePage) {
-  const target = document.querySelector(PAGE_SCROLL_TARGETS[page] || "#workspace");
+  const target = document.querySelector(["portfolio", "collection", "market"].includes(page) ? "#portfolioSections" : PAGE_SCROLL_TARGETS[page] || "#workspace");
   if (!target) return;
   requestAnimationFrame(() => {
     const topbarHeight = document.querySelector(".topbar")?.getBoundingClientRect().height || 0;
@@ -4788,9 +4814,10 @@ function toggleMarketContext() {
 const FOCUS_WORKSPACE_CONFIG = {
   collection: {
     toolbar: "#collectionViewToolbar",
-    panels: ["entry", "sync", "photoImport", "collectors", "collection"],
+    panels: ["entry", "sync", "photoImport", "collectors", "collection", "library"],
     views: {
       browse: ["collection"],
+      library: ["library"],
       add: ["entry"],
       imports: ["sync"],
       photos: ["photoImport"],
@@ -4921,6 +4948,7 @@ async function handleAppDownload() {
 }
 
 function pageFromHash() {
+  if (location.hash === "#catalogArea" || location.hash === "#catalog") return "catalog";
   if (!location.hash || location.hash === "#landing" || location.hash === "#home") return "landing";
   if (location.hash === "#workspace" || location.hash === "#dashboard") return "dashboard";
   if (location.hash === "#portfolio" || location.hash === "#portfolioArea") return "portfolio";
@@ -5121,7 +5149,8 @@ function allGlobalSearchItems() {
     target: "#dealRoomArea",
     action: "chat"
   }));
-  return [...sectionSearchItems(), ...cardItems, ...diyItems, ...goalItems, ...alertItems, ...tradeItems, ...dealItems, ...postItems, ...collectorItems, ...chatItems];
+  return [...sectionSearchItems(), ...cardItems, ...goalItems, ...alertItems, ...tradeItems, ...dealItems, ...postItems, ...collectorItems, ...chatItems]
+    .filter((item) => !["diy", "condition"].includes(item.page));
 }
 
 function renderGlobalSearch() {
@@ -5213,7 +5242,7 @@ function applyWorkspace() {
       return;
     }
     const belongsToPage = panelPage(panelId) === activePage;
-    const visible = belongsToPage && !(panelId === "scan" && SCAN_PAUSED) && workspace.visible[panelId] !== false;
+    const visible = belongsToPage && !["diy", "condition"].includes(panelId) && !(panelId === "scan" && SCAN_PAUSED) && workspace.visible[panelId] !== false;
     panel.classList.toggle("hidden", !visible);
     panel.style.order = String(workspace.order.indexOf(panelId) + 1);
     panel.classList.remove("drag-over", "dragging-panel");
@@ -5477,6 +5506,7 @@ function buildCardFromForm() {
   const now = new Date().toISOString();
   const existing = cards.find((card) => card.id === fields.id.value);
   return {
+    ...existing,
     id: fields.id.value || crypto.randomUUID(),
     createdAt: existing?.createdAt || now,
     updatedAt: now,
@@ -5486,6 +5516,8 @@ function buildCardFromForm() {
     brand: catalogFieldValue("brand"),
     setName: catalogFieldValue("setName"),
     type: text(fields.type.value),
+    insertName: text(fields.insertName.value),
+    cardDescription: text(fields.cardDescription.value),
     cardNumber: text(fields.cardNumber.value),
     parallel: text(fields.parallel.value),
     condition: text(fields.condition.value),
@@ -5497,9 +5529,11 @@ function buildCardFromForm() {
     value: numeric(fields.value.value),
     location: text(fields.location.value),
     notes: text(fields.notes.value),
+    serialNumber: form.dataset.scannedSerialNumber || existing?.serialNumber || "",
     image: existing?.image || pendingScannedCardImage || "",
     imageSourceUrl: existing?.imageSourceUrl || "",
-    imageProvider: existing?.imageProvider || (pendingScannedCardImage ? "Uploaded card scan" : "")
+    imageProvider: existing?.imageProvider || (pendingScannedCardImage ? "Uploaded card scan" : ""),
+    hciCardId: window.CardLedgerLibrary ? window.CardLedgerLibrary.entryIdentity(existing) : existing?.hciCardId || ""
   };
 }
 
@@ -6574,7 +6608,7 @@ function playerScanLocale(english, chinese) {
 function beginnerRequiredFields() {
   return [
     { key: "sport", label: playerScanLocale("sport", "运动"), value: text(fields.sport?.value), target: fields.sport },
-    { key: "year", label: playerScanLocale("year", "年份"), value: text(fields.year?.value), target: fields.year },
+    { key: "year", label: playerScanLocale("year", "年份"), value: text(fields.year?.value), target: fields.year?.hidden ? document.getElementById('hciYearPicker') : fields.year },
     { key: "brand", label: playerScanLocale("brand", "品牌"), value: catalogFieldValue("brand"), target: fields.brand },
     { key: "setName", label: playerScanLocale("set", "系列"), value: catalogFieldValue("setName"), target: fields.setName },
     { key: "player", label: playerScanLocale("player", "球员"), value: catalogFieldValue("player"), target: fields.player }
@@ -6984,7 +7018,9 @@ function playerScanKnownIdentityMatch(identity) {
     const setEvidence = playerScanPhraseEvidence(candidate.setName, identity.rawText);
     const setExact = Boolean(identity.setName && candidate.setName && normalizedPlayerScanText(identity.setName) === normalizedPlayerScanText(candidate.setName));
     const setSupported = setExact || setEvidence.score >= 0.9;
-    const supported = certExact || (playerExact && numberExact) || (playerExact && yearExact && setSupported);
+    const conflicts = ["player", "year", "setName", "cardNumber", "parallel"].some((key) =>
+      identity[key] && candidate[key] && playerScanCardFieldMatch(candidate[key], identity[key], key === "year" ? "year" : "exact") < 0.72);
+    const supported = certExact || (!conflicts && ((playerExact && numberExact) || (playerExact && yearExact && setSupported)));
     const score = certExact ? 1 : (playerExact ? 0.34 : 0) + (numberExact ? 0.24 : 0) + (yearExact ? 0.16 : 0) + (setSupported ? 0.18 : 0) + (identity.parallel && candidate.parallel && normalizedPlayerScanText(identity.parallel) === normalizedPlayerScanText(candidate.parallel) ? 0.08 : 0);
     return { candidate, supported, score };
   }).filter((entry) => entry.supported).sort((left, right) => right.score - left.score);
@@ -7164,7 +7200,7 @@ async function playerScanImageMatchScore(querySignatures, source, cacheKey) {
   }
 }
 
-function playerScanCandidateIdentity(candidate, score, visualScore = 0) {
+function playerScanCandidateIdentity(candidate, score, visualScore = 0, certExact = false) {
   const fieldConfidence = {};
   ["player", "sport", "year", "brand", "setName", "type", "parallel", "cardNumber", "grade", "certification"].forEach((key) => {
     if (candidate[key]) fieldConfidence[key] = Math.max(0.82, Math.min(0.98, score + (visualScore >= 0.86 ? 0.08 : 0)));
@@ -7175,14 +7211,145 @@ function playerScanCandidateIdentity(candidate, score, visualScore = 0) {
     cardNumber: text(candidate.cardNumber), grade: text(candidate.grade), certification: text(candidate.certification),
     psaPopulation: candidate.psaPopulation || null, confidence: Math.round(score * 100), fieldConfidence,
     matchLevel: score >= 0.9 ? "exact" : score >= 0.72 ? "strong" : "partial",
-    recognitionMethod: candidate.source === "psa-index" ? "certificate" : "catalog",
-    matchSource: candidate.source === "psa-index"
-      ? playerScanLocale("Verified card identity from the PSA index.", "已通过 PSA 数据库核验卡片身份。")
+    recognitionMethod: certExact ? "certificate" : "catalog",
+    matchSource: certExact
+      ? playerScanLocale("PSA certificate number matched.", "PSA 证书编号已匹配。")
       : visualScore >= 0.86
         ? playerScanLocale("Matched against a known card identity and its image. Confirm before applying.", "已匹配已知卡片信息及图片，使用前请确认。")
         : playerScanLocale("Matched against a known card identity. Confirm every field before applying.", "已匹配已知卡片信息，使用前请逐项确认。"),
     rawText: ""
   };
+}
+
+function playerScanHciSetName(value, brand = "", year = "") {
+  let setName = text(value)
+    .replace(/^Basketball Cards\s+/i, "")
+    .replace(new RegExp(`^${text(year).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+`, "i"), "")
+    .trim();
+  const brandName = text(brand);
+  if (brandName && normalizedPlayerScanText(setName).startsWith(`${normalizedPlayerScanText(brandName)} `)) {
+    setName = setName.slice(brandName.length).trim();
+  }
+  return setName || text(value);
+}
+
+function playerScanHciParallel(match, rawText = "") {
+  const parallel = text(match.parallel);
+  if (!parallel) return "";
+  const evidence = playerScanPhraseEvidence(parallel, rawText);
+  return evidence.exactPhrase || evidence.tokenCoverage >= 0.9 ? parallel : "";
+}
+
+async function scanLearningScope() {
+  const email=window.cardLedgerBridge?.getAccount()?.email;
+  if(!email || !crypto.subtle)return '';
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(`card-ledger-scan:${email.trim().toLowerCase()}`));
+  return [...new Uint8Array(digest)].map(value=>value.toString(16).padStart(2,'0')).join('');
+}
+
+async function rankHciDatasetCandidates(identity, imageSource) {
+  if (!imageSource) return [];
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 60000);
+  try {
+    const response = await fetch(`${HCI_CARD_IDENTIFIER_URL}/identify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: imageSource, identity, rawText: identity.rawText || "", learningScope: await scanLearningScope() }),
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`HCI identifier returned ${response.status}`);
+    const payload = await response.json();
+    const matches = Array.isArray(payload.matches) ? payload.matches : [];
+    return matches.map((match) => {
+      const score = Number(match.score || 0);
+      const visualScore = Number(match.visualScore || 0);
+      const setName = playerScanHciSetName(match.setName, match.brand, match.year);
+      const parallel = match.exactExample ? text(match.parallel) : playerScanHciParallel(match, identity.rawText);
+      const cardIdentity = {
+        player: text(match.player),
+        sport: text(match.sport) || identity.sport || "Basketball",
+        year: text(match.year),
+        brand: text(match.brand),
+        setName,
+        type: identity.type || "",
+        parallel,
+        cardNumber: text(match.cardNumber),
+        grade: identity.grade || "",
+        certification: identity.certification || "",
+        confidence: Math.round(score * 100),
+        fieldConfidence: {
+          player: Math.max(0.94, score), year: Math.max(0.88, score - 0.04),
+          brand: Math.max(0.88, score - 0.04), setName: Math.max(0.88, score - 0.04),
+          cardNumber: Math.max(0.86, score - 0.06), ...(parallel ? { parallel: Math.max(0.78, score - 0.12) } : {})
+        },
+        matchLevel: visualScore >= 0.93 ? "strong" : "partial",
+        recognitionMethod: "hci-image",
+        matchSource: match.confirmedExample
+          ? playerScanLocale('Matched a photo you previously confirmed on this computer. Review before applying.', '匹配到你在本机确认过的照片，使用前请核对。')
+          : parallel
+          ? playerScanLocale(`Compared with ${payload.comparedCount || 0} HCI basketball reference images. Confirm the parallel before applying.`, `已与 ${payload.comparedCount || 0} 张 HCI 篮球卡参考图片比对。使用前请确认平行版本。`)
+          : playerScanLocale(`Closest HCI image-library match. The card family is supported by the image, but the reference parallel was not copied because it was not visible in the scan.`, `HCI 图片库中的最接近结果。图片支持该卡片系列，但扫描中未看清平行版本，因此未自动填写。`),
+        rawText: identity.rawText || "",
+        hciVisualScore: visualScore,
+        hciReferenceTitle: text(match.title),
+        hciCardId: text(match.id),
+        hciReferenceParallel: text(match.parallel),
+        hciReferencePath: text(match.imagePath)
+      };
+      return {
+        id: playerScanCardCandidateId(cardIdentity, `hci-${match.id}`),
+        name: cardIdentity.player,
+        sport: cardIdentity.sport,
+        score,
+        visualScore,
+        identity: cardIdentity,
+        matchReason: "hci-image"
+      };
+    }).filter((entry) => entry.identity.player && entry.visualScore >= 0.68);
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+async function prepareHciScanPhoto(imageSource) {
+  try {
+    const response = await fetch(`${HCI_CARD_IDENTIFIER_URL}/prepare`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: imageSource }), signal: AbortSignal.timeout(8000)
+    });
+    if (!response.ok) return imageSource;
+    const result = await response.json();
+    return result.image || imageSource;
+  } catch { return imageSource; }
+}
+
+async function readLightingTolerantScanText(imageSource, name) {
+  try {
+    const response = await fetch(`${HCI_CARD_IDENTIFIER_URL}/read-card-text`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:imageSource}),signal:AbortSignal.timeout(30000)});
+    if (response.ok) {
+      const result=await response.json();
+      const readings=(result.orientations || []).map(reading=>{
+        const lines=reading.text.split('\n');
+        const combined=reading.text+'\n'+lines.slice(0,-1).map((line,index)=>line+' '+lines[index+1]).join('\n');
+        return {...reading,text:combined,match:rankPlayerScanMatches(combined)[0]};
+      });
+      readings.sort((a,b)=>(b.match?.score||0)-(a.match?.score||0) || b.text.length-a.text.length);
+      if(result.available && readings[0]?.match?.score>=.84)return readings[0].text;
+      if(result.available && readings.some(reading=>reading.text))return readings.map(reading=>reading.text).join('\n');
+    }
+  } catch { /* Browser OCR remains available without the local native reader. */ }
+  let original = '';
+  try { original = await readPlayerScanText(imageSource, name); } catch { /* Retry a corrected photo below. */ }
+  if (rankPlayerScanMatches(original)[0]?.score >= 0.84) return original;
+  const prepared = await prepareHciScanPhoto(imageSource);
+  if (prepared === imageSource) return original;
+  try {
+    const corrected = await readPlayerScanText(prepared, name);
+    const originalScore = rankPlayerScanMatches(original)[0]?.score || 0;
+    const correctedScore = rankPlayerScanMatches(corrected)[0]?.score || 0;
+    return correctedScore > originalScore ? corrected : original;
+  } catch { return original; }
 }
 
 async function rankPlayerScanCardCandidates(identity, imageSource) {
@@ -7197,14 +7364,14 @@ async function rankPlayerScanCardCandidates(identity, imageSource) {
   await Promise.all(visualPool.map(async (entry) => {
     entry.visualScore = await playerScanImageMatchScore(querySignatures, entry.candidate.image, `card:${entry.candidate.id}`);
     if (entry.visualScore >= 0.74) entry.score = Math.min(1, entry.score + (entry.visualScore - 0.7) * 0.72);
-    if (entry.visualScore >= 0.9 && entry.matchedFields >= 1) entry.score = Math.max(entry.score, 0.8);
+    if (entry.visualScore >= 0.9 && entry.matchedFields >= 3 && entry.conflicts === 0) entry.score = Math.max(entry.score, 0.8);
   }));
   const knownMatches = scored
-    .filter((entry) => entry.certExact || entry.score >= 0.48 || (entry.visualScore >= 0.88 && entry.matchedFields >= 1))
+    .filter((entry) => entry.certExact || (entry.conflicts === 0 && entry.matchedFields >= 2 && entry.score >= 0.48))
     .sort((left, right) => right.score - left.score || right.visualScore - left.visualScore)
     .slice(0, 5)
     .map((entry) => {
-      const cardIdentity = playerScanCandidateIdentity(entry.candidate, entry.score, entry.visualScore);
+      const cardIdentity = playerScanCandidateIdentity(entry.candidate, entry.score, entry.visualScore, entry.certExact);
       cardIdentity.rawText = identity.rawText;
       return {
         id: playerScanCardCandidateId(cardIdentity, entry.candidate.source),
@@ -7216,9 +7383,7 @@ async function rankPlayerScanCardCandidates(identity, imageSource) {
         matchReason: entry.certExact ? "certificate" : entry.visualScore >= 0.86 ? "catalog-image" : "catalog"
       };
     });
-  const coreDetectedFields = [identity.year, identity.brand, identity.setName, identity.cardNumber].filter(Boolean).length;
-  const detectedFields = coreDetectedFields + (identity.player ? 1 : 0) + (identity.parallel ? 1 : 0);
-  const detectedCandidate = identity.player && coreDetectedFields >= 2 && detectedFields >= 3 ? {
+  const detectedCandidate = identity.player ? {
     id: playerScanCardCandidateId(identity, "detected"),
     name: identity.player || playerScanLocale("Unconfirmed subject", "未确认主体"),
     sport: identity.sport,
@@ -7234,9 +7399,33 @@ async function rankPlayerScanCardCandidates(identity, imageSource) {
   return candidates;
 }
 
+function mergePlayerScanCandidates(...candidateGroups) {
+  const candidates = candidateGroups.flat().sort((left, right) => right.score - left.score || right.visualScore - left.visualScore);
+  return candidates.filter((entry, index, all) => {
+    const identity = entry.identity || {};
+    const key = [identity.player, identity.year, identity.brand, identity.setName, identity.cardNumber, identity.parallel]
+      .map(normalizedPlayerScanText).join("|");
+    return all.findIndex((item) => {
+      const candidate = item.identity || {};
+      return [candidate.player, candidate.year, candidate.brand, candidate.setName, candidate.cardNumber, candidate.parallel]
+        .map(normalizedPlayerScanText).join("|") === key;
+    }) === index;
+  }).slice(0, 8);
+}
+
 window.CardLedgerScanner = Object.freeze({
   identifyText: identifyCardFromScanText
 });
+
+let hciScanPlayers = [];
+let hciScanPlayersRequest;
+async function loadHciScanPlayers() {
+  if (!hciScanPlayersRequest) hciScanPlayersRequest = fetch('http://127.0.0.1:8765/scan-players', { signal: AbortSignal.timeout(4000) })
+    .then((response) => response.ok ? response.json() : null)
+    .then((data) => { hciScanPlayers = Array.isArray(data?.players) ? data.players : []; })
+    .catch(() => { hciScanPlayersRequest = null; });
+  await hciScanPlayersRequest;
+}
 
 function playerScanDirectory() {
   const entries = new Map();
@@ -7248,6 +7437,14 @@ function playerScanDirectory() {
       prior.sports.add(sport);
       entries.set(key, prior);
     });
+  });
+  hciScanPlayers.forEach((name) => {
+    const key = normalizedPlayerScanText(name);
+    const words = key.split(' ');
+    // Catalog player fields also contain teams, mascots and multi-player cards.
+    if (words.length < 2 || words.length > 4 || /[/,&]/.test(name)
+      || /\b(?:mavericks|warriors|lakers|celtics|bulls|knicks|nets|spurs|rockets|clippers|nuggets|grizzlies|timberwolves|pelicans|jazz|suns|thunder|raptors|pacers|pistons|cavaliers|bucks|hawks|hornets|wizards|kings|magic|heat|76ers|blazers|team|checklist|refractor|amethyst|die cut)\b/.test(key)) return;
+    if (key && !entries.has(key)) entries.set(key, { name, sports: new Set(['Basketball']) });
   });
   cards.forEach((card) => {
     const name = text(card.player);
@@ -7270,12 +7467,32 @@ function rankPlayerScanMatches(scanText) {
     if (surname.length >= 4) surnameFrequency.set(surname, (surnameFrequency.get(surname) || 0) + 1);
   });
   return directory
+    .filter((entry) => {
+      const tokens = normalizedPlayerScanText(entry.name).split(' ').filter((token) => token.length > 2);
+      const compact = tokens.join('');
+      return tokens.some((token) => sourceWords.has(token)) || [...sourceWords].some((word) => word.length >= 8 && compact.length >= 8
+        && Math.abs(word.length - compact.length) <= 2 && 1 - playerScanDistance(word, compact) / Math.max(word.length, compact.length) >= 0.84);
+    })
     .map((entry) => {
       const evidence = playerScanPhraseEvidence(entry.name, scanText);
       const tokens = normalizedPlayerScanText(entry.name).split(" ").filter((token) => token && !/^(?:jr|sr|ii|iii|iv)$/.test(token));
       const surname = tokens.at(-1) || "";
       const uniqueSurname = surname.length >= 4 && surnameFrequency.get(surname) === 1 && sourceWords.has(surname);
-      const score = Math.max(evidence.score, uniqueSurname ? 0.84 : 0);
+      // Correct small OCR spelling errors within a single printed name line.
+      const nearName = tokens.length >= 2 && text(scanText).split(/\n+/).some((line) => {
+        const words = normalizedPlayerScanText(line).split(" ").filter(Boolean);
+        if (words.length !== tokens.length) return false;
+        const similarities = tokens.map((token, index) => {
+          const word = words[index] || "";
+          return 1 - playerScanDistance(token, word) / Math.max(token.length, word.length, 1);
+        });
+        return similarities.every((value) => value >= 0.7)
+          && similarities.reduce((sum, value) => sum + value, 0) / tokens.length >= 0.82;
+      });
+      const compact = tokens.join('');
+      const compactName = compact.length >= 8 && [...sourceWords].some((word) => word.length >= 8
+        && Math.abs(word.length - compact.length) <= 2 && 1 - playerScanDistance(word, compact) / Math.max(word.length, compact.length) >= 0.84);
+      const score = Math.max(evidence.score, uniqueSurname ? 0.64 : 0, nearName || compactName ? 0.86 : 0);
       return { ...entry, score, evidence, matchReason: evidence.exactPhrase ? "full-name" : uniqueSurname ? "surname" : "name-parts" };
     })
     .sort((left, right) => right.score - left.score || right.name.length - left.name.length || left.name.localeCompare(right.name));
@@ -7313,6 +7530,10 @@ function loadPlayerScanOcr() {
     script.addEventListener("load", () => window.Tesseract?.recognize ? resolve(window.Tesseract) : reject(new Error("Text reader did not initialize.")));
     script.addEventListener("error", () => reject(new Error("Text reader could not be downloaded.")));
     document.head.append(script);
+  });
+  playerScanOcrPromise = playerScanOcrPromise.catch((error) => {
+    playerScanOcrPromise = null;
+    throw error;
   });
   return playerScanOcrPromise;
 }
@@ -7511,7 +7732,9 @@ async function readPlayerScanBarcodes(imageSource) {
 }
 
 function playerScanTextHasStrongIdentity(value) {
-  return (rankPlayerScanMatches(value)[0]?.score || 0) >= 0.84;
+  const identity = identifyCardFromScanText(value);
+  return ["player", "year", "brand", "setName", "cardNumber"].every((key) =>
+    identity[key] && identity.fieldConfidence[key] >= 0.84);
 }
 
 function setPlayerScanStatus(message) {
@@ -7519,6 +7742,42 @@ function setPlayerScanStatus(message) {
   if (globalScanElements.status && !globalScanElements.drawer?.classList.contains("hidden")) {
     globalScanElements.status.textContent = message;
   }
+}
+
+async function readCardNameplateText(worker, source) {
+  const image = new Image();
+  image.src = source;
+  await image.decode();
+  // Narrow text bands keep the artwork from dominating page segmentation.
+  const bands = [
+    { x: 0.025, y: 0.91, w: 0.68, h: 0.055, mode: "7" },
+    { x: 0, y: 0.84, w: 1, h: 0.14, mode: "6" },
+    { x: 0, y: 0, w: 1, h: 0.22, mode: "6" }
+  ];
+  const lines = [];
+  for (const band of bands) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1500;
+    canvas.height = Math.round(band.h * image.naturalHeight / (band.w * image.naturalWidth) * 1500 * 1.16);
+    canvas.getContext("2d").drawImage(image,
+      band.x * image.naturalWidth, band.y * image.naturalHeight,
+      band.w * image.naturalWidth, band.h * image.naturalHeight,
+      0, 0, canvas.width, canvas.height);
+    await worker.setParameters({ tessedit_pageseg_mode: band.mode });
+    const result = await worker.recognize(canvas.toDataURL("image/png"));
+    const raw = text(result?.data?.text);
+    // Accept these recovery crops only as player-name evidence; decorative
+    // logos can otherwise hallucinate years and serial numbers.
+    const ranked = rankPlayerScanMatches(raw);
+    const best = ranked[0];
+    if (best?.score >= 0.84 && best.score - (ranked[1]?.score || 0) >= 0.12) {
+      lines.push(raw.split(/\n+/).filter((line) =>
+        rankPlayerScanMatches(line)[0]?.name === best.name
+        && rankPlayerScanMatches(line)[0]?.score >= 0.84).join("\n"));
+      break;
+    }
+  }
+  return lines.join("\n");
 }
 
 async function readPlayerScanText(image, filename = "") {
@@ -7532,11 +7791,30 @@ async function readPlayerScanText(image, filename = "") {
     logger: (event) => {
       if (event.status !== "recognizing text") return;
       const percent = Math.round((event.progress || 0) * 100);
-      setPlayerScanStatus(playerScanLocale(`Finding the printed player name... ${percent}%`, `正在识别卡面球员姓名……${percent}%`));
+      setPlayerScanStatus(playerScanLocale(`Reading player, year, brand and card number... ${percent}%`, `正在读取球员、年份、品牌与卡号……${percent}%`));
     },
     preserve_interword_spaces: "1"
   });
-  return `${nativeText}\n${barcodeText}\n${text(result?.data?.text)}`;
+  const combined = `${nativeText}\n${barcodeText}\n${text(result?.data?.text)}`;
+  if (playerScanTextHasStrongIdentity(combined)) return combined;
+  // Sparse text mode also reads labels separated by large areas of artwork.
+  setPlayerScanStatus(playerScanLocale("Checking small labels and card details...", "正在检查小字标签与卡片细节……"));
+  try {
+    const worker = await tesseract.createWorker("eng");
+    try {
+      await worker.setParameters({ tessedit_pageseg_mode: "11", preserve_interword_spaces: "1" });
+      const extra = await worker.recognize(image);
+      const fullText = `${combined}\n${text(extra?.data?.text)}`;
+      if (rankPlayerScanMatches(fullText)[0]?.score >= 0.84) return fullText;
+      setPlayerScanStatus(playerScanLocale("Reading the small printed nameplate...", "正在放大识别卡片姓名栏……"));
+      const nameplate = await readCardNameplateText(worker, image);
+      return `${fullText}\n${nameplate}`;
+    } finally {
+      await worker.terminate();
+    }
+  } catch {
+    return combined;
+  }
 }
 
 function renderPlayerScanMatches(matches, confident = true) {
@@ -7552,6 +7830,8 @@ function renderPlayerScanMatches(matches, confident = true) {
   playerScanElements.match.innerHTML = `${firstLabel}${matches.map((match) => {
     const method = match.matchReason === "certificate"
       ? playerScanLocale("PSA", "PSA")
+      : match.matchReason === "hci-image"
+        ? playerScanLocale("HCI image", "HCI 图片")
       : match.matchReason === "catalog-image"
         ? playerScanLocale("catalog + image", "目录 + 图片")
         : match.matchReason === "catalog"
@@ -7569,14 +7849,13 @@ function playerScanReviewIdentity() {
   const selectedMatch = playerScanMatches.find((entry) => entry.id === selectedId);
   return selectedMatch?.identity
     ? { ...selectedMatch.identity, confidence: Math.round(selectedMatch.score * 100) }
-    : { ...(playerScanIdentity || {}) };
+    : { ...(playerScanDetectedIdentity || playerScanIdentity || {}) };
 }
 
 function setPlayerScanApplyState() {
   if (!playerScanElements.apply) return;
   const identity = playerScanReviewIdentity();
-  const coreFields = [identity.year, identity.brand, identity.setName, identity.cardNumber].filter(Boolean).length;
-  playerScanElements.apply.disabled = !identity.player || coreFields < 2;
+  playerScanElements.apply.disabled = !identity.player;
 }
 
 function renderPlayerScanIdentity(identity) {
@@ -7588,16 +7867,23 @@ function renderPlayerScanIdentity(identity) {
       || playerScanLocale("Card identity not confirmed", "卡片身份尚未确认");
   }
   if (playerScanElements.confidence) {
+    const playerOnly = identity.player && (identity.fieldConfidence?.player || 0) >= 0.9
+      && !(identity.year && identity.setName && identity.cardNumber);
     const level = identity.recognitionMethod === "certificate"
       ? playerScanLocale("Certificate match", "证书匹配")
+      : identity.recognitionMethod === "hci-image"
+        ? playerScanLocale("HCI image match", "HCI 图片匹配")
       : identity.recognitionMethod === "catalog"
-        ? playerScanLocale("Catalog match", "目录匹配")
+        ? playerScanLocale("Catalog suggestion", "目录候选")
+        : playerOnly
+          ? playerScanLocale("Player identified; card unconfirmed", "已识别球员；卡片未确认")
         : identity.confidence >= 90
       ? playerScanLocale("Strong identity", "高可信身份")
       : identity.confidence >= 72
         ? playerScanLocale("Likely", "较可能")
         : playerScanLocale("Review", "请确认");
-    playerScanElements.confidence.textContent = `${level} · ${identity.confidence}%`;
+    playerScanElements.confidence.textContent = playerOnly && identity.recognitionMethod !== "catalog"
+      ? level : `${level} · ${identity.confidence}%`;
     playerScanElements.confidence.classList.toggle("low", identity.confidence < 72);
   }
   if (playerScanElements.source) playerScanElements.source.textContent = identity.matchSource || playerScanLocale("Review the detected identity before applying it.", "应用前请核对识别出的卡片身份。");
@@ -7616,6 +7902,7 @@ function renderPlayerScanIdentity(identity) {
 
 function resetPlayerScanIdentity() {
   playerScanIdentity = null;
+  playerScanDetectedIdentity = null;
   playerScanMatches = [];
   pendingScannedCardImage = "";
   if (playerScanElements.file) playerScanElements.file.value = "";
@@ -7645,31 +7932,56 @@ function resetPlayerScanIdentity() {
 function renderGlobalScanResult(identity, image) {
   if (!globalScanElements.result) return;
   const reviewed = playerScanReviewIdentity();
-  const coreFields = [reviewed.year, reviewed.brand, reviewed.setName, reviewed.cardNumber].filter(Boolean).length;
-  const cardConfirmed = Boolean(reviewed.player && coreFields >= 2);
+  const detected = playerScanDetectedIdentity || identity;
+  const verifiedByText = Boolean(["player", "year", "setName", "cardNumber"].every((key) =>
+    detected?.[key] && (detected.fieldConfidence?.[key] || 0) >= 0.84
+      && playerScanCardFieldMatch(reviewed[key], detected[key], key === "year" ? "year" : "exact") >= 0.9));
+  const cardConfirmed = Boolean(reviewed.player && (
+    reviewed.recognitionMethod === "certificate"
+    || (reviewed.recognitionMethod === "hci-image" && Number(reviewed.hciVisualScore || 0) >= 0.9)
+    || verifiedByText
+  ));
   const selectedId = text(playerScanElements.match?.value);
   const alternatives = playerScanMatches.filter((entry) => entry.id !== selectedId).slice(0, 3);
-  const details = alternatives.map((entry) => [
+  const details = [
+    [playerScanLocale("Player", "球员"), reviewed.player],
+    [playerScanLocale("Sport", "运动"), reviewed.sport],
+    [playerScanLocale("Year", "年份"), reviewed.year],
+    [playerScanLocale("Brand", "品牌"), reviewed.brand],
+    [playerScanLocale("Set / series", "系列"), reviewed.setName],
+    [playerScanLocale("Card number", "卡号"), reviewed.cardNumber],
+    [playerScanLocale("Parallel", "平行版本"), reviewed.parallel],
+    [playerScanLocale("Grade", "评级"), reviewed.grade]
+  ].map(([label, value]) => [label, value || playerScanLocale("Not identified", "尚未识别")]);
+  details.push(...alternatives.map((entry) => [
     playerScanLocale("Other candidate", "其他候选"),
     `${playerScanCardTitle(entry.identity) || entry.name} · ${Math.round(entry.score * 100)}%`
-  ]);
+  ]));
   if (globalScanElements.preview) globalScanElements.preview.src = image;
   if (globalScanElements.confidence) {
     const confidence = Number(reviewed.confidence || identity.confidence || 0);
+    const playerOnly = reviewed.player && (reviewed.fieldConfidence?.player || 0) >= 0.9 && !cardConfirmed;
     const level = reviewed.recognitionMethod === "certificate"
       ? playerScanLocale("Certificate match", "证书匹配")
+      : reviewed.recognitionMethod === "hci-image"
+        ? playerScanLocale("HCI image match", "HCI 图片匹配")
       : reviewed.recognitionMethod === "catalog"
-        ? playerScanLocale("Catalog match", "目录匹配")
+        ? playerScanLocale("Catalog suggestion", "目录候选")
+        : playerOnly
+          ? playerScanLocale("Player identified; card unconfirmed", "已识别球员；卡片未确认")
         : confidence >= 86
           ? playerScanLocale("Strong identity", "高可信身份")
           : confidence >= 64
             ? playerScanLocale("Possible identity", "可能身份")
             : playerScanLocale("Review required", "需要确认");
-    globalScanElements.confidence.textContent = `${level} · ${confidence}%`;
+    globalScanElements.confidence.textContent = playerOnly && reviewed.recognitionMethod !== "catalog"
+      ? level : `${level} · ${confidence}%`;
     globalScanElements.confidence.classList.toggle("low", confidence < 64);
   }
   if (globalScanElements.title) {
-    globalScanElements.title.textContent = cardConfirmed
+    globalScanElements.title.textContent = reviewed.recognitionMethod === 'hci-image' && !cardConfirmed
+      ? `${playerScanCardTitle(reviewed)} · ${playerScanLocale('Suggested match', '建议匹配')}`
+      : cardConfirmed
       ? playerScanCardTitle(reviewed)
       : reviewed.player
         ? `${reviewed.player} · ${playerScanLocale("exact card not confirmed", "具体卡片未确认")}`
@@ -7685,14 +7997,18 @@ function renderGlobalScanResult(identity, image) {
   }
   globalScanElements.empty?.classList.add("hidden");
   globalScanElements.result.classList.remove("hidden");
-  if (globalScanElements.review) globalScanElements.review.disabled = !reviewed.player && !playerScanMatches.length;
+  if (globalScanElements.review) globalScanElements.review.disabled = !image;
 }
 
 function syncGlobalScannerLanguage() {
   const copy = [
+    ["#cardCameraStart", "Open camera", "打开相机"],
+    ["#entryCardCamera", "Open camera", "打开相机"],
+    ["#cardCameraCapture", "Capture card", "拍摄并识别"],
+    ["#cardCameraStop", "Stop camera", "关闭相机"],
     ["#globalScanTitle", "Identify the exact card", "识别具体卡片"],
     ["#globalScanDescription", "Card Ledger reads slab labels and card text, checks known card identities, then ranks the closest matches for you to confirm.", "卡藏账本会读取评级标签与卡面文字，对照已知卡片目录，再由你确认最接近的结果。"],
-    ["#globalScanChoose strong", "Take or upload the card", "拍摄或上传卡片"],
+    ["#globalScanChoose strong", "Upload card photos", "上传卡片照片"],
     ["#globalScanChoose small", "Select the front and optional back together. Keep the full card, label, and printed text sharp.", "可同时选择正面和反面。请确保卡片边缘、评级标签及卡面文字清晰。"],
     ["#globalScanEmpty p", "Your result will appear here without leaving the page.", "无需离开当前页面，识别结果会显示在这里。"],
     ["#globalScanAgain", "Scan another", "继续扫描"],
@@ -7723,6 +8039,7 @@ function openGlobalScanner() {
 }
 
 function closeGlobalScanner({ restoreFocus = true } = {}) {
+  stopCardIdentityCamera();
   globalScanElements.backdrop?.classList.add("hidden");
   globalScanElements.drawer?.classList.add("hidden");
   document.body.classList.remove("global-scan-open");
@@ -7737,6 +8054,15 @@ function chooseGlobalScanPhoto() {
 }
 
 function reviewGlobalScanInAddCard() {
+  if (window.CardLedgerLibrary) {
+    const scan = window.cardLedgerBridge.getScanReview();
+    if (scan.image) {
+      closeGlobalScanner({ restoreFocus: false });
+      window.CardLedgerLibrary.review(scan.image, scan.matches, scan.identity,
+        card => window.CardLedgerLibrary.openEntry(card, scan.image));
+      return;
+    }
+  }
   closeGlobalScanner({ restoreFocus: false });
   setActivePage("collection");
   setEntryMode("card");
@@ -7758,16 +8084,95 @@ function readPlayerScanFile(file) {
   });
 }
 
+let cardIdentityScanBusy = false;
+let cardIdentityCameraStream = null;
+let cardIdentityCameraGeneration = 0;
+
+function stopCardIdentityCamera() {
+  cardIdentityCameraGeneration += 1;
+  cardIdentityCameraStream?.getTracks().forEach((track) => track.stop());
+  cardIdentityCameraStream = null;
+  const video = document.getElementById("cardCameraVideo");
+  if (video) video.srcObject = null;
+  document.getElementById("cardCameraPane")?.classList.add("hidden");
+}
+
+async function startCardIdentityCamera() {
+  if (!requireMember("scan a card photo")) return;
+  stopCardIdentityCamera();
+  const generation = cardIdentityCameraGeneration;
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error(playerScanLocale("Use localhost or HTTPS to enable the camera, or upload a photo.", "请通过 localhost 或 HTTPS 打开网站使用相机，也可上传照片。"));
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+    if (generation !== cardIdentityCameraGeneration) {
+      stream.getTracks().forEach((track) => track.stop());
+      return;
+    }
+    cardIdentityCameraStream = stream;
+    const video = document.getElementById("cardCameraVideo");
+    video.srcObject = stream;
+    document.getElementById("cardCameraPane").classList.remove("hidden");
+    await video.play();
+    setPlayerScanStatus(playerScanLocale("Keep the full card and label in view, then capture.", "请将完整卡片与标签放入画面后拍摄。"));
+  } catch (error) {
+    stopCardIdentityCamera();
+    setPlayerScanStatus(error.name === "NotAllowedError"
+      ? playerScanLocale("Camera permission was denied. Allow camera access in browser settings or upload a photo.", "相机权限未获允许。请在浏览器设置中开启权限，或上传照片。")
+      : playerScanLocale(`Camera unavailable: ${error.message}`, `相机暂不可用：${error.message}`));
+  }
+}
+
+async function captureCardIdentityPhoto() {
+  if (cardIdentityScanBusy) return;
+  const video = document.getElementById("cardCameraVideo");
+  if (!video?.videoWidth) return;
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  stopCardIdentityCamera();
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.95));
+  if (blob) await identifyPlayerFromPhoto({ files: [new File([blob], "card-camera.jpg", { type: "image/jpeg" })] });
+}
+
 async function identifyPlayerFromPhoto(input = playerScanElements.file) {
+  if (cardIdentityScanBusy) return;
+  cardIdentityScanBusy = true;
+  try {
+    await performCardIdentityScan(input);
+  } catch (error) {
+    setPlayerScanStatus(playerScanLocale(`Could not read this image: ${error.message}. Try a JPEG or PNG photo.`, `无法读取图片：${error.message}。请尝试 JPEG 或 PNG 照片。`));
+  } finally {
+    cardIdentityScanBusy = false;
+    if (input) input.value = "";
+  }
+}
+
+async function performCardIdentityScan(input) {
   const files = [...(input?.files || [])].slice(0, 2);
   if (!files.length) return;
   if (!requireMember("scan a card photo")) {
     input.value = "";
     return;
   }
+  resetPlayerScanIdentity();
   const images = await Promise.all(files.map(readPlayerScanFile));
   const image = images[0];
   if (!image) return;
+  if (window.CardLedgerLibrary) {
+    setPlayerScanStatus(playerScanLocale('Checking for multiple cards…', '正在检测多张卡片……'));
+    const detection = await window.cardLedgerBridge.detectCards(image);
+    if (detection.cards?.length > 1) {
+      closeGlobalScanner({ restoreFocus:false });
+      if (detection.reviewRequired) {
+        await window.CardLedgerLibrary.selectRegions(files[0], detection, files.slice(1));
+        return;
+      }
+      await window.CardLedgerLibrary.scanRegions(detection.cards, files[0].name);
+      if (files.length > 1) await window.CardLedgerLibrary.scanBatch(files.slice(1));
+      return;
+    }
+  }
   pendingScannedCardImage = image;
   playerScanElements.preview.src = image;
   playerScanElements.preview.classList.remove("hidden");
@@ -7775,12 +8180,13 @@ async function identifyPlayerFromPhoto(input = playerScanElements.file) {
   playerScanElements.apply.disabled = true;
   playerScanElements.identity?.classList.add("hidden");
   setPlayerScanStatus(playerScanLocale("Reading the card identity...", "正在读取卡片身份……"));
+  await loadHciScanPlayers();
   const scanParts = [];
   const scanErrors = [];
   for (let index = 0; index < images.length; index += 1) {
     setPlayerScanStatus(playerScanLocale(`Reading image ${index + 1} of ${images.length}...`, `正在识别第 ${index + 1}/${images.length} 张图片……`));
     try {
-      scanParts.push(await readPlayerScanText(images[index], files[index].name));
+      scanParts.push(await readLightingTolerantScanText(images[index], files[index].name));
     } catch (error) {
       scanErrors.push(text(error?.message) || `image ${index + 1} could not be read`);
       scanParts.push("");
@@ -7789,49 +8195,53 @@ async function identifyPlayerFromPhoto(input = playerScanElements.file) {
   const scanText = scanParts.join("\n");
   const scanError = scanErrors.join("; ");
   let identity = identifyCardFromScanText(scanText);
-  let visualError = "";
-  if (!identity.player) {
-    try {
-      const visualResult = await identifyPlayerFromFace(image);
-      if (visualResult.player) {
-        identity.player = visualResult.player;
-        identity.sport ||= visualResult.sport;
-        identity.fieldConfidence = { ...(identity.fieldConfidence || {}), player: visualResult.confidence / 100 };
-        if (identity.sport) identity.fieldConfidence.sport = Math.max(identity.fieldConfidence.sport || 0, visualResult.confidence / 100 * 0.86);
-        identity = playerScanRecalculateConfidence(identity);
-        identity.matchSource = playerScanLocale(
-          `Card text was incomplete. The player was suggested from a local comparison with ${visualResult.referenceCount} player photos; confirm every card field.`,
-          `卡面文字不完整。球员由本机 ${visualResult.referenceCount} 张照片比对提示；请确认所有卡片字段。`
-        );
-      }
-    } catch (error) {
-      visualError = text(error?.message) || playerScanLocale("Visual matching was unavailable.", "图像匹配暂不可用。");
-    }
-  }
   identity = await enrichPlayerScanIdentity(identity);
-  const candidates = await rankPlayerScanCardCandidates(identity, image);
+  playerScanDetectedIdentity = identity;
+  setPlayerScanStatus(playerScanLocale("Comparing with the HCI basketball image library...", "正在与 HCI 篮球卡图片库比对……"));
+  let hciCandidates = [];
+  let hciUnavailable = false;
+  try {
+    hciCandidates = await rankHciDatasetCandidates(identity, image);
+  } catch {
+    hciUnavailable = true;
+  }
+  const localCandidates = await rankPlayerScanCardCandidates(identity, image);
+  const candidates = mergePlayerScanCandidates(hciCandidates, localCandidates);
   const top = candidates[0];
   const runnerUp = candidates[1];
   const autoSelect = Boolean(top && (
     top.matchReason === "certificate"
-    || (top.score >= 0.76 && top.score - (runnerUp?.score || 0) >= 0.06)
+    || (top.matchReason === "hci-image" && top.visualScore >= 0.85 && top.score >= 0.88
+      && playerScanCardFieldMatch(top.identity.player, identity.player) >= 0.9)
+    || (top.matchReason === "hci-image" && (!identity.player || (identity.fieldConfidence?.player || 0) < 0.84) && top.visualScore >= 0.87
+      && top.score - (runnerUp?.score || 0) >= 0.06)
+    || (top.matchReason !== "text-card" && identity.player && identity.year && identity.setName && identity.cardNumber
+      && ["player", "year", "setName", "cardNumber"].every((key) => (identity.fieldConfidence?.[key] || 0) >= 0.84)
+      && top.score >= 0.88 && top.score - (runnerUp?.score || 0) >= 0.08)
   ));
   renderPlayerScanMatches(candidates, autoSelect);
   if (autoSelect && top) playerScanElements.match.value = top.id;
   const reviewedIdentity = autoSelect && top ? top.identity : identity;
   renderPlayerScanIdentity(reviewedIdentity);
-  const resultMessage = top?.matchReason === "certificate"
+  const isPartial = identity.player && (!identity.year || !identity.setName);
+  const resultMessage = isPartial && !autoSelect
+    ? playerScanLocale(`${identity.player} identified. Add a back photo to read the year and set, or review and fill the missing details.`, `已识别 ${identity.player}。请补充背面照片读取年份与系列，或在表单中补全缺失信息。`)
+    : top?.matchReason === "certificate"
     ? playerScanLocale("PSA certificate matched. Confirm the card details before adding it.", "PSA 证书已匹配，添加前请确认卡片信息。")
+    : top?.matchReason === "hci-image"
+      ? playerScanLocale("Matched against the extracted HCI card-image dataset. Confirm the suggested card family and fill any omitted parallel or grade before applying.", "已与提取的 HCI 卡片图片数据集匹配。请确认建议的卡片系列，并在使用前补充未填写的平行版本或评级。")
     : candidates.length
       ? autoSelect
         ? playerScanLocale("A strong card match was found. Confirm it before applying.", "已找到高可信卡片匹配，使用前请确认。")
         : playerScanLocale("Several possible cards were found. Choose the closest match, then confirm every field.", "已找到多个可能结果。请选择最接近的卡片，并逐项确认。")
       : scanError
         ? playerScanLocale(`The text reader was limited (${scanError}). Try a sharper front and back photo.`, `文字识别受限（${scanError}）。请重试更清晰的正反面照片。`)
-        : visualError
-          ? playerScanLocale(`No exact identity was found. Visual fallback: ${visualError}`, `未找到具体卡片身份。图像辅助：${visualError}`)
+        : hciUnavailable
+          ? playerScanLocale("The local HCI image matcher is offline, so only card text was checked. Start the Card Ledger identifier and scan again.", "本地 HCI 图片匹配服务未启动，本次仅检查了卡面文字。请启动 Card Ledger 识别服务后重试。")
           : playerScanLocale("No exact card identity was found. Try a straight-on image with the full label and card number visible.", "未找到具体卡片身份。请上传正对、标签与卡号完整可见的照片。");
-  setPlayerScanStatus(resultMessage);
+  setPlayerScanStatus(hciUnavailable
+    ? `${resultMessage} ${playerScanLocale("Image-library matching is unavailable or timed out. Please try again.", "图片库匹配暂不可用或已超时，请重试。")}`
+    : resultMessage);
   renderGlobalScanResult(reviewedIdentity, image);
 }
 
@@ -7952,6 +8362,7 @@ function goalSlotPlayer(goal, slotId) {
 }
 
 function goalSlotLabel(goal, slotId) {
+  if (goal.slots?.[slotId]?.label) return goal.slots[slotId].label;
   return [slotId, goalSlotPlayer(goal, slotId)].filter(Boolean).join(" ");
 }
 
@@ -7963,6 +8374,7 @@ function cardMatchesGoalBase(card, goal) {
 }
 
 function cardMatchesGoalSlot(card, goal, slotId) {
+  if (goal.slots?.[slotId]?.hciCardId) return String(card.hciCardId || "") === String(goal.slots[slotId].hciCardId);
   if (!cardMatchesGoalBase(card, goal)) return false;
   if (goal.type === "number") {
     return text(card.year) === text(goal.season) && cardSlotId(card) === slotId;
@@ -7994,6 +8406,7 @@ function syncAllGoalSlotsFromCards() {
 
 function resetForm() {
   form.reset();
+  delete form.dataset.scannedSerialNumber;
   resetPlayerScanIdentity();
   window.CardLedgerCardSelectors?.clearPendingPlayer?.();
   Object.values(catalogCustomFields).forEach((input) => {
@@ -8021,7 +8434,7 @@ function cardMeta(card) {
   const setLine = [card.brand, card.setName, card.cardNumber && `#${card.cardNumber}`]
     .filter((value, index, values) => value && !(index === 0 && text(values[1]).toLowerCase().startsWith(text(value).toLowerCase())))
     .join(" ");
-  return [setLine, card.type, card.parallel, card.grade || card.condition, card.certification && `Cert ${card.certification}`].filter(Boolean).join(" · ");
+  return [setLine, card.type, card.insertName, card.cardDescription, card.parallel, card.grade || card.condition, card.certification && `Cert ${card.certification}`].filter(Boolean).join(" · ");
 }
 
 function displayNote(note) {
@@ -8060,7 +8473,7 @@ function filteredCards() {
       case "valueDesc":
         return estimatedCardValue(b) * b.quantity - estimatedCardValue(a) * a.quantity;
       case "yearDesc":
-        return Number(b.year) - Number(a.year);
+        return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0);
       case "sportAsc":
         return a.sport.localeCompare(b.sport);
       default:
@@ -8864,6 +9277,63 @@ function conditionEstimateDetails(card, { includeDate = false } = {}) {
   return `PSA ${estimate.psa} · BGS ${estimate.bgs} · ${estimate.confidence}% ${conditionLocale("confidence", "置信度")}${populationText}${estimateDate ? ` · ${estimateDate}` : ""}`;
 }
 
+function renderInlineCardPrices(node, card) {
+  const zh = currentLanguage === 'zh-CN';
+  const owner = account.email || account.phone || account.id || '';
+  const original = { paid:numeric(card.paid), value:estimatedCardValue(card) };
+  const metrics = node.querySelector('.card-details > dl');
+  const editor = document.createElement('form');
+  editor.className = 'inline-card-prices';
+  metrics.replaceWith(editor); editor.append(metrics);
+  const controls = {};
+  for (const field of ['paid','value']) {
+    const target=node.querySelector(`.${field}`);
+    target.textContent='';
+    const line=document.createElement('label'); line.className='inline-price-input';
+    const currency=document.createElement('span'); currency.textContent='RMB';currency.setAttribute('aria-hidden','true');
+    const input=document.createElement('input');
+    input.type='number';input.min='0';input.step='0.01';input.inputMode='decimal';input.required=true;
+    input.value=String(Math.round(original[field]*100)/100);
+    input.dataset.inlinePrice=field;
+    input.setAttribute('aria-label',`${zh?(field==='paid'?'购入价':'估值'):(field==='paid'?'Paid price':'Value')} (RMB)`);
+    const equivalent=document.createElement('small');equivalent.className='money-secondary';equivalent.textContent=usdEquivalent(original[field]);
+    line.append(currency,input);target.append(line,equivalent);controls[field]=input;
+    input.addEventListener('input',()=>{
+      equivalent.textContent=usdEquivalent(input.value);
+      actions.hidden=false; message.textContent='';
+    });
+    input.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();render();}});
+  }
+  const actions=document.createElement('div');actions.className='inline-price-actions';actions.hidden=true;
+  const save=document.createElement('button');save.type='submit';save.className='ghost-button compact-button';save.textContent=zh?'保存价格':'Save prices';
+  const cancel=document.createElement('button');cancel.type='button';cancel.className='ghost-button compact-button';cancel.textContent=zh?'取消':'Cancel';
+  cancel.addEventListener('click',()=>render());
+  const message=document.createElement('span');message.className='inline-price-status';message.setAttribute('role','status');
+  actions.append(save,cancel,message);editor.append(actions);
+  editor.addEventListener('submit',event=>{
+    event.preventDefault();
+    if(!requireMember('edit card prices'))return;
+    if(owner!==(account.email||account.phone||account.id||''))return;
+    const paid=Number(controls.paid.value),value=Number(controls.value.value);
+    if(!editor.reportValidity() || !Number.isFinite(paid) || !Number.isFinite(value) || paid<0 || value<0)return;
+    const current=cards.find(item=>item.id===card.id);
+    if(!current)return;
+    const paidChanged=paid!==Math.round(original.paid*100)/100,valueChanged=value!==Math.round(original.value*100)/100;
+    if((paidChanged && numeric(current.paid)!==original.paid) || (valueChanged && estimatedCardValue(current)!==original.value)){
+      message.textContent=zh?'价格已在其他位置更改，请重新打开。':'Prices changed elsewhere. Reopen this card.';return;
+    }
+    if(!paidChanged && !valueChanged){actions.hidden=true;return;}
+    const previous=cards;
+    const updated={...current,updatedAt:new Date().toISOString(),revision:(Number(current.revision)||0)+1,
+      ...(paidChanged?{paid}:{}),...(valueChanged?{value,valueMode:'manual'}:{})};
+    cards=cards.map(item=>item.id===card.id?updated:item);
+    try { saveCards(); }
+    catch { cards=previous;message.textContent=zh?'保存失败，请重试。':'Could not save. Please retry.';return; }
+    window.CardLedgerAdvanced?.logActivity?.('update','card',card.id,'Updated card prices',{paid:updated.paid,value:updated.value});
+    render();
+  });
+}
+
 function renderGrid(list) {
   els.gridList.innerHTML = "";
   list.forEach((card) => {
@@ -8877,6 +9347,7 @@ function renderGrid(list) {
     node.querySelector(".qty").textContent = card.quantity;
     renderMoney(node.querySelector(".paid"), card.paid);
     renderMoney(node.querySelector(".value"), estimatedCardValue(card));
+    renderInlineCardPrices(node, card);
     renderMoney(node.querySelector(".ebay-value"), estimatedValueBySource(card, "ebay"));
     renderMoney(node.querySelector(".cardhobby-value"), estimatedValueBySource(card, "cardhobby"));
     node.querySelector(".valuation-method").textContent = valuationMethod(card);
@@ -10472,7 +10943,7 @@ function renderGoals() {
             ${
               slot.image
                 ? `<img src="${escapeHtml(slot.image)}" alt="${escapeHtml(`${goal.title} ${slotLabel}`)}" />`
-                : `<span>${escapeHtml(slotId)}</span>`
+                : `<span>${escapeHtml(slot.cardNumber ? `#${slot.cardNumber}` : slot.hciCardId ? "HCI" : slotId)}</span>`
             }
           </div>
           <div class="goal-slot-body">
@@ -10667,6 +11138,7 @@ function applyTranslations(root = document.body) {
 }
 
 function render() {
+  window.CardLedgerLibrary?.syncGoalOwnership?.();
   const list = filteredCards();
   const isEmpty = list.length === 0;
   renderPresentationCloset();
@@ -10702,9 +11174,10 @@ function render() {
   els.toggleCollectionContent.textContent = collectionToggleLabel;
   els.collectionInventory?.classList.toggle("hidden", !collectionExpanded);
   if (els.collectionViewerCount) {
+    const count = window.CardLedgerAdvanced?.collectionResultCount?.() ?? list.length;
     els.collectionViewerCount.textContent = currentLanguage === "zh-CN"
-      ? `${list.length} 张卡片可浏览`
-      : `${list.length} card${list.length === 1 ? "" : "s"} ready to browse`;
+      ? `${count} 张卡片可浏览`
+      : `${count} card${count === 1 ? "" : "s"} ready to browse`;
   }
   if (els.quickToggleCollection) {
     els.quickToggleCollection.setAttribute("aria-expanded", String(collectionExpanded));
@@ -10713,18 +11186,35 @@ function render() {
   [els.gridView, els.quickGridView].forEach((button) => button?.classList.toggle("active", viewMode === "grid"));
   [els.tableView, els.quickTableView].forEach((button) => button?.classList.toggle("active", viewMode === "table"));
   els.emptyState.classList.toggle("hidden", !collectionExpanded || !isEmpty);
+  const hasInventory = cards.length > 0;
+  els.emptyState.querySelector("h3").textContent = currentLanguage === "zh-CN"
+    ? (hasInventory ? "没有符合条件的卡片" : "还没有卡片")
+    : (hasInventory ? "No matching cards" : "No cards yet");
+  els.emptyState.querySelector("p").textContent = currentLanguage === "zh-CN"
+    ? (hasInventory ? "调整筛选条件，或展开下方的收集目标查看卡片。" : "添加第一张卡片，开始管理收藏。")
+    : (hasInventory ? "Adjust your filters, or expand a collection goal below." : "Add your first card to start your collection.");
+  const emptyAction = document.querySelector("#emptyCollectionAction");
+  emptyAction.classList.toggle("hidden", hasInventory && !text(els.search.value) && !els.sportFilter.value && collectionQuickFilter === "all");
+  emptyAction.textContent = currentLanguage === "zh-CN"
+    ? (hasInventory ? "清除筛选" : "添加卡片")
+    : (hasInventory ? "Clear filters" : "Add Card");
   els.gridList.classList.toggle("hidden", !collectionExpanded || viewMode !== "grid" || isEmpty);
   els.tableWrap.classList.toggle("hidden", !collectionExpanded || viewMode !== "table" || isEmpty);
   setupChartTooltips();
   updateBeginnerEntryGuide();
   applyTranslations();
   window.CardLedgerAdvanced?.afterRender?.(list);
+  window.CardLedgerLibrary?.afterRender?.();
+  window.CardLedgerCatalog?.refreshAccount?.();
 }
 
 function editCard(id) {
   if (!requireMember("edit cards")) return;
   const card = cards.find((item) => item.id === id);
   if (!card) return;
+  setActivePage("collection");
+  setFocusWorkspaceView("collection", "add", { scroll: false });
+  setEntryMode("card");
   pendingPsaPopulation = normalizePsaPopulation(card.psaPopulation);
   window.CardLedgerCardSelectors?.sync?.(card);
   window.CardLedgerAdvanced?.syncCardSelectors?.(card);
@@ -10733,6 +11223,7 @@ function editCard(id) {
     field.value = key === "id" ? card.id : card[key] ?? "";
   });
   form.querySelector(".primary-button").textContent = "Update Card";
+  window.CardLedgerSubsets?.refresh();
   renderPsaCardLookup();
   queueMicrotask(updateBeginnerEntryGuide);
   document.querySelector(".entry-panel").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -10767,6 +11258,8 @@ function toCsv(rows) {
     "setName",
     "player",
     "type",
+    "insertName",
+    "cardDescription",
     "parallel",
     "cardNumber",
     "sport",
@@ -10786,24 +11279,55 @@ function toCsv(rows) {
   return [headers.join(","), ...rows.map((row) => headers.map((key) => escapeCell(row[key])).join(","))].join("\n");
 }
 
+let cardSaveInFlight = false;
+let workspaceFeedbackTimer;
+function showWorkspaceFeedback(message) {
+  const feedback = document.getElementById("workspaceFeedback");
+  if (!feedback) return;
+  clearTimeout(workspaceFeedbackTimer);
+  feedback.textContent = message;
+  feedback.classList.remove("hidden");
+  workspaceFeedbackTimer = setTimeout(() => feedback.classList.add("hidden"), 6500);
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (cardSaveInFlight) return;
   if (!requireMember("add cards to your collection")) return;
   if (focusBeginnerMissingField()) return;
-  if (isPsaGrade(fields.grade.value)) await lookupPsaCardPopulation({ silent: true });
-  const baseCard = buildCardFromForm();
-  const builtCard = window.CardLedgerAdvanced?.enrichCard?.(baseCard) || baseCard;
-  const card = await attachCardImage(await attachPsaPopulation(builtCard));
-  const index = cards.findIndex((item) => item.id === card.id);
-  if (index >= 0) {
-    cards[index] = card;
-  } else {
-    cards.unshift(card);
+  cardSaveInFlight = true;
+  const submitButtons = [...form.querySelectorAll('button[type="submit"]')];
+  submitButtons.forEach((button) => { button.disabled = true; });
+  const previousCards = cards;
+  let cardPersisted = false;
+  try {
+    if (isPsaGrade(fields.grade.value)) await lookupPsaCardPopulation({ silent: true });
+    const baseCard = buildCardFromForm();
+    const builtCard = window.CardLedgerAdvanced?.enrichCard?.(baseCard) || baseCard;
+    const card = await attachCardImage(await attachPsaPopulation(builtCard));
+    const index = cards.findIndex((item) => item.id === card.id);
+    cards = [...cards];
+    if (index >= 0) cards[index] = card;
+    else cards.unshift(card);
+    saveCards();
+    cardPersisted = true;
+    syncGoalSlotsFromCard(card);
+    resetForm();
+    collectionExpanded = true;
+    setFocusWorkspaceView("collection", "browse", { scroll: false });
+    render();
+    els.collectionInventory?.scrollIntoView({ behavior: "auto", block: "start" });
+    showWorkspaceFeedback(playerScanLocale(index >= 0 ? "Card updated." : "Card added to your collection.", index >= 0 ? "卡片已更新。" : "卡片已加入收藏。"));
+  } catch (error) {
+    if (!cardPersisted) cards = previousCards;
+    showWorkspaceFeedback(cardPersisted
+      ? playerScanLocale("Card saved, but the view could not refresh. Reload to see your saved card.", "卡片已保存，但页面未能刷新。请重新加载查看已保存的卡片。")
+      : playerScanLocale("Could not finish saving. Your form is still here; check storage space and try again.", "保存未完成。表单内容已保留，请检查储存空间后重试。"));
+    console.warn("Card save failed", error);
+  } finally {
+    cardSaveInFlight = false;
+    submitButtons.forEach((button) => { button.disabled = false; });
   }
-  saveCards();
-  syncGoalSlotsFromCard(card);
-  resetForm();
-  render();
 });
 
 els.resetForm.addEventListener("click", resetForm);
@@ -10811,6 +11335,17 @@ els.startScanCamera.addEventListener("click", startScanCamera);
 els.stopScanCamera.addEventListener("click", stopScanCamera);
 els.captureScanCard.addEventListener("click", captureScanCard);
 playerScanElements.file?.addEventListener("change", () => identifyPlayerFromPhoto(playerScanElements.file));
+document.getElementById("cardCameraStart")?.addEventListener("click", startCardIdentityCamera);
+document.getElementById("cardCameraStop")?.addEventListener("click", stopCardIdentityCamera);
+document.getElementById("cardCameraCapture")?.addEventListener("click", captureCardIdentityPhoto);
+document.getElementById("entryCardCamera")?.addEventListener("click", () => {
+  openGlobalScanner();
+  if (!globalScanElements.drawer?.classList.contains("hidden")) startCardIdentityCamera();
+});
+window.addEventListener("pagehide", stopCardIdentityCamera);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopCardIdentityCamera();
+});
 globalScanElements.open?.addEventListener("click", openGlobalScanner);
 globalScanElements.close?.addEventListener("click", () => closeGlobalScanner());
 globalScanElements.backdrop?.addEventListener("click", () => closeGlobalScanner());
@@ -10823,7 +11358,7 @@ document.addEventListener("keydown", (event) => {
 });
 playerScanElements.match?.addEventListener("change", () => {
   const match = playerScanMatches.find((entry) => entry.id === playerScanElements.match.value);
-  renderPlayerScanIdentity(match?.identity || playerScanIdentity || {});
+  renderPlayerScanIdentity(match?.identity || playerScanDetectedIdentity || {});
   if (!globalScanElements.result?.classList.contains("hidden")) renderGlobalScanResult(playerScanIdentity, globalScanElements.preview?.src || pendingScannedCardImage);
   updateBeginnerEntryGuide();
 });
@@ -10995,6 +11530,19 @@ els.dealRoomList?.addEventListener("click", (event) => {
   saveDealRooms();
   renderDealRooms();
 });
+document.querySelector("#emptyCollectionAction").addEventListener("click", () => {
+  if (!cards.length) {
+    setFocusWorkspaceView("collection", "add", { scroll: false });
+    setEntryMode("card");
+    return;
+  }
+  els.search.value = "";
+  els.sportFilter.value = "";
+  collectionQuickFilter = "all";
+  window.CardLedgerAdvanced?.resetCollectionPage?.();
+  render();
+});
+
 els.search.addEventListener("input", () => {
   window.CardLedgerAdvanced?.resetCollectionPage?.();
   render();
@@ -11329,7 +11877,7 @@ communityPostForm.addEventListener("submit", async (event) => {
     avatar: text(account.avatar),
     intent: communityFields.intent.value,
     selectedCard: selectedCard
-      ? { id: selectedCard.id, name: fixedCardName(selectedCard), value: estimatedCardValue(selectedCard) }
+      ? { id: selectedCard.id, hciCardId: selectedCard.hciCardId || "", name: fixedCardName(selectedCard), value: estimatedCardValue(selectedCard) }
       : null,
     cards: lines,
     note: text(communityFields.note.value),
@@ -12808,6 +13356,11 @@ els.sportsGuyCopyReply?.addEventListener("click", async () => {
 tradeForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!requireMember("record trades")) return;
+  if (!text(tradeFields.outgoing.value) && !text(tradeFields.incoming.value)) {
+    showWorkspaceFeedback(playerScanLocale("Add at least one outgoing or incoming card before saving a trade.", "请至少填写一张转出或转入卡片再保存交易。"));
+    tradeFields.outgoing.focus();
+    return;
+  }
   const completedTrade = buildTradeFromForm();
   trades.unshift(completedTrade);
   window.CardLedgerAdvanced?.completeTradeInventory?.(completedTrade);
@@ -15852,6 +16405,80 @@ els.collectorReviewQueue?.addEventListener("click", async (event) => {
 window.addEventListener("cardledger:sales-updated", () => render());
 
 window.cardLedgerBridge = {
+  getLanguage: () => currentLanguage,
+  setGoals: (next) => { goals = next; },
+  saveGoals,
+  getCommunityPosts: communityDisplayPosts,
+  getPublicCollectors: visibleCollectorProfiles,
+  openCollector: (id) => {
+    selectedProfileId = id;
+    setActivePage("collection"); setFocusWorkspaceView("collection", "people", { scroll: false });
+    renderProfileViewer(visibleCollectorProfiles(), els.profileViewer);
+    els.profileViewer.scrollIntoView({ behavior: "auto", block: "start" });
+  },
+  openLibrary: () => { setActivePage("collection"); setFocusWorkspaceView("collection", "library", { scroll: false }); },
+  openCatalog: () => { setActivePage("catalog"); },
+  closeScanner: () => closeGlobalScanner({ restoreFocus: false }),
+  openTrade: () => { setActivePage("trade"); setFocusWorkspaceView("trade", "builder", { scroll: false }); },
+  openCardEntry: (card, image = "") => {
+    resetForm();
+    setActivePage("collection"); setFocusWorkspaceView("collection", "add", { scroll: false });
+    fields.sport.value = card.sport || "Basketball";
+    fields.year.value = card.year || "";
+    window.CardLedgerCardSelectors?.sync?.(card);
+    fields.parallel.value = card.parallel || "";
+    fields.cardNumber.value = card.cardNumber || "";
+    fields.grade.value = card.grade || "";
+    fields.certification.value = card.certification || "";
+    fields.condition.value = card.grade ? "Graded" : "Raw";
+    for (const key of ['location','notes']) if (card[key] != null && fields[key]) fields[key].value = card[key];
+    if (card.serialNumber) form.dataset.scannedSerialNumber = card.serialNumber;
+    const guidedSerial = document.querySelector('#guidedSerial');
+    if (guidedSerial) guidedSerial.value = card.serialNumber || '';
+    if (card.type) fields.type.value = card.type;
+    fields.insertName.value = card.insertName || '';
+    fields.cardDescription.value = card.cardDescription || '';
+    window.CardLedgerSubsets?.refresh();
+    if (image) pendingScannedCardImage = image;
+  },
+  readScanFile: readPlayerScanFile,
+  detectCards: async image => {
+    try {
+      const response = await fetch(`${HCI_CARD_IDENTIFIER_URL}/detect-cards`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({image}), signal:AbortSignal.timeout(15000) });
+      if (!response.ok) throw new Error('Card detection unavailable');
+      return await response.json();
+    } catch { return { cards:[], available:false }; }
+  },
+  scanImage: async (image, name) => {
+    await loadHciScanPlayers();
+    let raw = "";
+    try { raw = await readLightingTolerantScanText(image, name); } catch { /* Image matching can still run without OCR. */ }
+    let identity = await enrichPlayerScanIdentity(identifyCardFromScanText(raw));
+    const orientationEvidence = card => (card.player ? 4 : 0) + (card.brand ? 1 : 0) + (card.setName ? 2 : 0) + (card.cardNumber ? 1 : 0) + (card.year ? 1 : 0);
+    if (orientationEvidence(identity) < 7) {
+      const picture = new Image(); picture.src=image; await picture.decode();
+      for (const angle of [90,270,180]) {
+        const canvas=document.createElement('canvas'), side=angle!==180;
+        canvas.width=side?picture.naturalHeight:picture.naturalWidth;canvas.height=side?picture.naturalWidth:picture.naturalHeight;
+        const context=canvas.getContext('2d');context.translate(canvas.width/2,canvas.height/2);context.rotate(angle*Math.PI/180);context.drawImage(picture,-picture.naturalWidth/2,-picture.naturalHeight/2);
+        const oriented=canvas.toDataURL('image/jpeg',.94);
+        try {
+          const orientedRaw=await readLightingTolerantScanText(oriented,name), candidate=await enrichPlayerScanIdentity(identifyCardFromScanText(orientedRaw));
+          if (orientationEvidence(candidate)>orientationEvidence(identity) || (orientationEvidence(candidate)===orientationEvidence(identity) && (candidate.fieldConfidence?.player||0)>(identity.fieldConfidence?.player||0))) {identity=candidate;image=oriented;raw=orientedRaw;}
+          if(orientationEvidence(identity)>=7)break;
+        } catch { /* Keep the best readable orientation. */ }
+      }
+    }
+    let hci=[];try {hci=await rankHciDatasetCandidates(identity,image);} catch { /* OCR/manual review remains available offline. */ }
+    const matches = mergePlayerScanCandidates(hci, await rankPlayerScanCardCandidates(identity,image));
+    return { identity, matches, image };
+  },
+  getScanReview: () => ({ identity: playerScanReviewIdentity(), matches: playerScanMatches, image: pendingScannedCardImage }),
+  reviewScanCandidate: (id) => {
+    playerScanElements.match.value = id;
+    const match = playerScanMatches.find((entry) => entry.id === id);
+    if (match) { renderPlayerScanIdentity(match.identity); renderGlobalScanResult(match.identity, pendingScannedCardImage); }
+  },
   getCards: () => cards,
   setCards: (nextCards) => {
     cards = Array.isArray(nextCards) ? nextCards : cards;

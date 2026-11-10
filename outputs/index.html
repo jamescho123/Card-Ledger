@@ -17,9 +17,13 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#06402b" />
     <meta name="description" content="Portfolio management, goals, valuation, trade logging, and community tools for sports card collectors." />
-    <link rel="stylesheet" href="./styles.css?v=88" />
+    <link rel="stylesheet" href="./styles.css?v=93" />
+    <link rel="stylesheet" href="./library.css?v=5" />
+    <link rel="stylesheet" href="./catalog-section.css?v=1" />
+    <link rel="stylesheet" href="./catalog-tools.css?v=1" />
     <link rel="stylesheet" href="./themes.css?v=38" />
     <link rel="stylesheet" href="./advanced.css?v=37" />
+    <link rel="stylesheet" href="./concise-ui.css?v=1" />
   </head>
   <body>
     <aside class="asset-sidebar" aria-label="Asset manager sections">
@@ -35,6 +39,7 @@
         </div>
       </button>
       <nav class="side-nav" aria-label="Asset pages">
+        <button class="side-nav-item" type="button" data-page-button="catalog" title="HCI Card Catalog"><span class="material-symbols-outlined" data-fallback="▤" aria-hidden="true">menu_book</span><span>Catalog</span></button>
         <button class="side-nav-item active" type="button" data-page-button="portfolio">
           <span class="material-symbols-outlined" data-fallback="◧" aria-hidden="true">account_balance_wallet</span>
           <span>Portfolio</span>
@@ -630,11 +635,19 @@
         </button>
       </header>
       <div class="global-scan-body">
+        <button id="cardCameraStart" class="primary-button" type="button">Open camera</button>
+        <section id="cardCameraPane" class="hidden">
+          <video id="cardCameraVideo" autoplay playsinline muted style="width:100%;max-height:340px;object-fit:contain;background:#101614;border-radius:8px"></video>
+          <div style="display:flex;gap:12px;margin:12px 0">
+            <button id="cardCameraCapture" class="primary-button" type="button">Capture card</button>
+            <button id="cardCameraStop" class="ghost-button" type="button">Stop camera</button>
+          </div>
+        </section>
         <button id="globalScanChoose" class="global-scan-upload" type="button">
           <span class="material-symbols-outlined" aria-hidden="true">add_a_photo</span>
           <span><strong>Take or upload the card</strong><small>Select the front and optional back together. Keep the full card, label, and printed text sharp.</small></span>
         </button>
-        <input id="globalScanFile" class="sr-only" type="file" accept="image/*" capture="environment" multiple />
+        <input id="globalScanFile" class="sr-only" type="file" accept="image/*" multiple />
         <div id="globalScanEmpty" class="global-scan-empty">
           <span class="material-symbols-outlined" aria-hidden="true">center_focus_strong</span>
           <p>Your result will appear here without leaving the page.</p>
@@ -656,8 +669,17 @@
       </footer>
     </aside>
 
+    <div id="workspaceFeedback" class="workspace-feedback hidden" role="status" aria-live="polite" aria-atomic="true"></div>
     <main id="workspace" class="layout">
       <canvas id="pageWebglCanvas" class="page-webgl-canvas" aria-hidden="true"></canvas>
+      <nav id="portfolioSections" class="portfolio-sections hidden" aria-label="Portfolio sections">
+        <strong>Portfolio</strong>
+        <div role="tablist" aria-label="Portfolio views">
+          <button type="button" role="tab" data-page-button="portfolio">Overview</button>
+          <button type="button" role="tab" data-page-button="collection">Collection</button>
+          <button type="button" role="tab" data-page-button="market">Market Value</button>
+        </div>
+      </nav>
       <nav id="marketViewToolbar" class="market-view-toolbar" aria-label="Market workspace sections">
         <div class="market-view-title">
           <span class="material-symbols-outlined" aria-hidden="true">monitoring</span>
@@ -681,6 +703,7 @@
         <div class="focus-view-tabs" role="tablist" aria-label="Collection workspace view">
           <button class="active" type="button" role="tab" aria-selected="true" data-focus-page="collection" data-focus-view="browse"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span>Browse</button>
           <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="add"><span class="material-symbols-outlined" aria-hidden="true">add_card</span>Add Card</button>
+          <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="library"><span class="material-symbols-outlined" aria-hidden="true">search</span>Library</button>
           <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="imports"><span class="material-symbols-outlined" aria-hidden="true">cloud_download</span>Imports</button>
           <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="photos"><span class="material-symbols-outlined" aria-hidden="true">photo_library</span>Photos</button>
           <button type="button" role="tab" aria-selected="false" data-focus-page="collection" data-focus-view="people"><span class="material-symbols-outlined" aria-hidden="true">group</span>People</button>
@@ -922,6 +945,49 @@
         </aside>
       </section>
 
+      <section id="catalogArea" class="workspace-panel hidden" data-panel="catalog" aria-labelledby="catalogTitle"><div class="catalog-content">
+    <div class="heading"><div><p class="eyebrow" data-i18n="basketball">HCI · BASKETBALL</p><h2 id="catalogTitle" class="catalog-title" data-i18n="catalog">Card Catalog</h2></div><a id="catalog-batchUpload" class="batch-link" href="./index.html?batch=1" data-i18n="batch">Batch upload · up to 20</a><p id="catalog-coverage" class="muted" role="status"></p></div>
+    <form id="catalog-searchForm" class="searchbar"><div class="catalog-search-field"><label class="search-label"><span data-i18n="searchLabel">Search the database</span><input id="catalog-query" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="catalog-suggestions" aria-expanded="false" placeholder="Player, set or card name" /></label><div id="catalog-suggestions" role="listbox" hidden></div></div><button type="submit" class="primary" data-i18n="search">Search</button></form>
+    <div class="filters"><label><span data-i18n="year">Year</span><select id="catalog-year"></select></label><label><span data-i18n="brand">Brand</span><select id="catalog-brand"></select></label><label><span data-i18n="set">Set</span><select id="catalog-set_name"></select></label><label class="photo-filter"><input id="catalog-images" type="checkbox" /><span data-i18n="photos">With images only</span></label><button id="catalog-clear" type="button" data-i18n="clear">Clear</button></div>
+    <div class="catalog-options"><label><input id="catalog-group" type="checkbox" checked /><span data-i18n="group">Group parallels</span></label><label><span data-i18n="sort">Sort</span><select id="catalog-sort"></select></label><div class="catalog-view-switch" role="group" aria-label="Catalog layout"><button type="button" id="catalog-gridView" title="Grid view" aria-label="Grid view" aria-pressed="true"><span class="material-symbols-outlined" data-fallback="▦" aria-hidden="true">grid_view</span></button><button type="button" id="catalog-tableView" title="Table view" aria-label="Table view" aria-pressed="false"><span class="material-symbols-outlined" data-fallback="☷" aria-hidden="true">view_list</span></button></div><button type="button" id="catalog-goal" data-i18n="goal">Create goal</button></div>
+    <div class="results-bar"><strong id="catalog-count" aria-live="polite"></strong><label><span data-i18n="perPage">Per page</span><select id="catalog-pageSize"><option>24</option><option>48</option><option>96</option></select></label></div>
+    <div id="catalog-scanContext" class="catalog-scan-context" hidden></div>
+    <p id="catalog-actionStatus" class="catalog-action-status" role="status" aria-live="polite"></p>
+    <div id="catalog-error" class="error" role="alert" hidden><p id="catalog-errorText"></p><button id="catalog-retry" type="button" data-i18n="retry">Retry</button></div>
+    <section id="catalog-results" class="grid" aria-label="Card catalog" aria-busy="true"></section>
+    <div id="catalog-selectionBar" class="catalog-selection-bar" hidden><label><input id="catalog-selectPage" type="checkbox" /><span data-i18n="selectPage">Select page (up to 20)</span></label><strong id="catalog-selectionCount"></strong><button id="catalog-addSelected" type="button" class="primary" data-i18n="addSelected">Add selected</button><button id="catalog-compare" type="button" data-i18n="compare">Compare</button><button id="catalog-clearSelection" type="button" data-i18n="clearSelection">Clear selection</button></div>
+    <nav class="pagination" aria-label="Catalog pages"><button id="catalog-previous" type="button" data-i18n="previous" disabled>Previous</button><form id="catalog-pageForm"><label><span data-i18n="page">Page</span><input id="catalog-pageNumber" type="number" min="1" value="1" aria-label="Page number" /></label><span id="catalog-pageTotal"></span><button type="submit" data-i18n="go">Go</button></form><button id="catalog-next" type="button" data-i18n="next" disabled>Next</button></nav>
+    <footer><span data-i18n="note">HCI snapshot · September 19, 2026. Reference images may show a similar parallel.</span></footer>
+
+  <dialog id="catalog-detail"><button id="catalog-close" type="button" class="close" aria-label="Close">×</button><div id="catalog-detailContent"></div></dialog>
+      </div></section>
+      <section id="cardLibraryArea" class="workspace-panel library-workspace hidden" data-panel="library" aria-labelledby="libraryTitle">
+        <div class="section-heading"><h2 id="libraryTitle">Card Library</h2><button type="button" data-page-button="catalog" class="ghost-button">Browse full catalog</button><button id="libraryCoverage" type="button" class="ghost-button library-muted" aria-label="Database coverage"></button></div>
+        <nav class="library-tabs" aria-label="Library tools">
+          <button type="button" data-library-tab="search" class="active">Search</button>
+          <button type="button" data-library-tab="batch">Batch Scan</button>
+          <button type="button" data-library-tab="watch">Watchlist</button>
+          <button type="button" data-library-tab="tools">Collection Tools</button>
+        </nav>
+        <div id="librarySearchPane">
+          <form id="librarySearchForm" class="library-search-form">
+            <label class="library-query">Search cards<input id="libraryQuery" type="search" placeholder="Player, set, card name" /></label>
+            <button type="submit" class="primary-button">Search</button>
+            <details id="libraryFilterDetails"><summary>Filters</summary><div id="libraryFilters" class="library-filter-grid"></div></details>
+          </form>
+          <div class="library-result-toolbar"><span id="libraryCount" role="status"></span><div><button id="libraryChecklist" type="button" class="ghost-button">Create checklist</button><button id="libraryClear" type="button" class="ghost-button">Clear filters</button></div></div>
+          <div id="libraryResults" class="library-results"></div>
+          <nav class="library-pagination" aria-label="Search pages"><button id="libraryPrevious" type="button" class="ghost-button">Previous</button><span id="libraryPage"></span><button id="libraryNext" type="button" class="ghost-button">Next</button></nav>
+        </div>
+        <div id="libraryBatchPane" hidden><div class="library-batch-toolbar"><label class="ghost-button library-upload"><span id="libraryBatchUploadLabel">Upload photos (up to 20)</span><input id="libraryBatchFiles" type="file" accept="image/*" multiple /></label><button id="libraryBatchReviewNext" type="button" class="ghost-button" disabled>Review next</button><button id="libraryBatchSave" type="button" class="primary-button" disabled>Save confirmed cards</button><strong id="libraryBatchCount" role="status"></strong></div><progress id="libraryBatchProgress" max="20" value="0" hidden aria-label="Batch scanning progress"></progress><p id="libraryBatchStatus" role="status"></p><div id="libraryBatchQueue" class="library-tool-list"></div></div>
+        <div id="libraryWatchPane" hidden><div id="libraryWatches" class="library-tool-list"></div></div>
+        <div id="libraryToolsPane" hidden>
+          <details><summary>Database cleanup</summary><button id="libraryFindCorrections" type="button" class="ghost-button">Find suggestions</button><div id="libraryCorrections" class="library-tool-list"></div></details>
+          <details><summary>Duplicate records</summary><div id="libraryDuplicates" class="library-tool-list"></div></details>
+          <details><summary>Individual copies</summary><input id="libraryCopiesSearch" type="search" placeholder="Search your cards" /><div id="libraryCopies" class="library-tool-list"></div><div class="library-pagination"><button id="libraryCopiesPrevious" type="button" class="ghost-button">Previous</button><span id="libraryCopiesPage"></span><button id="libraryCopiesNext" type="button" class="ghost-button">Next</button></div></details>
+        </div>
+        <p id="libraryStatus" role="status" aria-live="polite"></p>
+      </section>
       <section id="entryArea" class="entry-panel workspace-panel" data-panel="entry" aria-labelledby="formTitle">
         <div class="entry-tabs" role="tablist" aria-label="Entry mode">
           <button id="cardEntryTab" class="entry-tab active" type="button" role="tab" aria-selected="true" aria-controls="cardEntryPanel">
@@ -942,10 +1008,11 @@
               </div>
             </div>
             <div class="player-scan-workspace">
+              <button id="entryCardCamera" class="ghost-button" type="button">Open camera</button>
               <label class="player-scan-trigger">
                 <span class="material-symbols-outlined" aria-hidden="true">add_a_photo</span>
                 <span>Upload front + optional back</span>
-                <input id="playerScanFile" type="file" accept="image/*" capture="environment" multiple />
+                <input id="playerScanFile" type="file" accept="image/*" multiple />
               </label>
               <img id="playerScanPreview" class="player-scan-preview hidden" alt="Card photo being scanned for its player" />
               <div class="player-scan-result">
@@ -988,15 +1055,15 @@
           </div>
           <form id="cardForm">
             <input type="hidden" id="cardId" />
-            <section class="beginner-entry-guide" aria-labelledby="beginnerGuideTitle">
-              <div class="beginner-guide-heading">
+            <details class="beginner-entry-guide" aria-labelledby="beginnerGuideTitle">
+              <summary class="beginner-guide-heading">
                 <span class="material-symbols-outlined" aria-hidden="true">school</span>
                 <div>
                   <strong id="beginnerGuideTitle">Your first card, one step at a time</strong>
                   <small>Only five basics are needed. Everything else can be added later.</small>
                 </div>
                 <span id="beginnerGuideCount" class="beginner-guide-count">0 / 5 ready</span>
-              </div>
+              </summary>
               <div class="beginner-guide-steps" aria-label="Card entry progress">
                 <div class="active" data-beginner-step="identify">
                   <span>1</span>
@@ -1019,7 +1086,7 @@
                   <p>Type, parallel, number, condition, grade, price, location and notes are optional. You can edit them later.</p>
                 </details>
               </div>
-            </section>
+            </details>
             <div class="starter-entry-toolbar">
               <span>Quick entry keeps only the essential fields visible.</span>
               <button id="toggleAdvancedEntry" class="ghost-button compact-button" type="button">Show advanced details</button>
@@ -1070,6 +1137,8 @@
                 Type
                 <input id="cardType" name="cardType" list="cardTypeOptions" placeholder="Base, Rookie, Auto, Insert" />
               </label>
+              <label>Insert / subset name<input id="insertName" name="insertName" placeholder="All Heart, Emergent" /></label>
+              <label>Autograph / memorabilia details<input id="cardDescription" name="cardDescription" placeholder="On-card auto, jersey patch" /></label>
               <label>
                 Parallel / Variant
                 <input id="parallel" name="parallel" list="cardParallelOptions" placeholder="Refractor" />
@@ -1560,10 +1629,10 @@
           <div class="section-heading-actions"><span id="aiTradeQuotaBadge" class="quota-badge">5 per month</span><button id="clearTradeAi" class="ghost-button compact-button" type="button">Clear</button></div>
         </div>
 
-        <div class="trade-estimate-policy" role="note">
-          <span class="material-symbols-outlined" aria-hidden="true">verified</span>
-          <div><strong>Explainable estimates</strong><p>Saved completed sales are averaged after obvious outliers are removed. Collection estimates and manual values are clearly labeled when sale evidence is unavailable.</p></div>
-        </div>
+        <details class="trade-estimate-policy">
+          <summary>Explainable estimates</summary>
+          <p>Saved completed sales are averaged after obvious outliers are removed. Collection estimates and manual values are clearly labeled when sale evidence is unavailable.</p>
+        </details>
 
         <div class="trade-ai-workspace">
           <div class="trade-ai-main">
@@ -1594,7 +1663,7 @@
               </section>
             </div>
 
-            <details class="trade-entry-helper" open>
+            <details class="trade-entry-helper">
               <summary><span class="material-symbols-outlined" aria-hidden="true">add_card</span><span>Structured card entry</span><small>Build one correctly formatted card</small></summary>
               <div class="trade-entry-helper-body">
                 <div class="format-strip">Year | Brand | Set | Player | Type | Parallel | Number | Grade | Value RMB</div>
@@ -1785,12 +1854,13 @@
           </div>
         </section>
 
+        <details class="quiet-disclosure collection-display-disclosure">
+          <summary>Display Cabinet/Box</summary>
         <section class="presentation-closet" aria-labelledby="presentationClosetTitle">
           <div class="presentation-closet-heading">
             <div>
               <span class="closet-eyebrow">Display Cabinet/Box</span>
               <h2 id="presentationClosetTitle">Your cards, on display</h2>
-              <p>Choose a gallery cabinet or browse your collection inside an interactive storage box.</p>
             </div>
             <div class="closet-view-controls" role="group" aria-label="Selected card holder and cabinet layout">
               <label>
@@ -1873,6 +1943,8 @@
           </div>
         </section>
 
+        </details>
+
         <div class="stats" aria-label="Collection stats">
           <div>
             <span id="totalCards">0</span>
@@ -1892,10 +1964,12 @@
           </div>
         </div>
 
+        <details class="quiet-disclosure collection-health-disclosure">
+          <summary>Collection health</summary>
         <section class="collection-health" aria-labelledby="collectionHealthTitle">
           <div class="collection-health-copy">
             <span class="collection-health-eyebrow">Collection health</span>
-            <h3 id="collectionHealthTitle">Keep every card ready to find, verify, and share.</h3>
+            <h3 id="collectionHealthTitle">Catalog coverage</h3>
             <p id="collectionHealthSummary">Add cards to see catalog coverage.</p>
             <div class="collection-health-track" aria-hidden="true"><span id="collectionHealthBar"></span></div>
           </div>
@@ -1905,16 +1979,18 @@
             <div><dt>Needs review</dt><dd id="collectionReviewCount">0</dd></div>
           </dl>
           <div class="collection-health-actions">
+            <button id="refreshCollectionPsa" class="ghost-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">verified</span>Refresh PSA Pop</button>
             <button id="collectionAddCard" class="primary-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">add</span>Add card</button>
             <button id="collectionReviewIssues" class="ghost-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">fact_check</span>Review issues</button>
           </div>
         </section>
 
+        </details>
+
         <div id="collectionInventory" class="collection-inventory-content">
         <div class="section-heading collection-heading">
           <h2 id="collectionTitle">Collection</h2>
           <div class="collection-tools">
-            <button id="refreshCollectionPsa" class="ghost-button compact-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">verified</span>Refresh PSA Pop</button>
             <button id="toggleCollectionContent" class="ghost-button compact-button" type="button">Show Cards</button>
             <div class="view-toggle" role="group" aria-label="View mode">
               <button id="gridView" type="button" class="toggle-button active">Grid</button>
@@ -1958,10 +2034,14 @@
           <div class="empty-art" aria-hidden="true"></div>
           <h3>No cards yet</h3>
           <p>Add a card to start tracking value, goals, and profit.</p>
+          <button id="emptyCollectionAction" class="ghost-button" type="button">Add Card</button>
         </div>
 
-        <div id="goalCollectionList" class="goal-collection-list"></div>
-        <div id="collectionRooms" class="collection-rooms"></div>
+        <details class="quiet-disclosure">
+          <summary>Goals &amp; collection rooms</summary>
+          <div id="goalCollectionList" class="goal-collection-list"></div>
+          <div id="collectionRooms" class="collection-rooms"></div>
+        </details>
         <div class="collection-pagination-bar">
           <span id="collectionResultSummary">0 cards</span>
           <label>Per page<select id="collectionPageSize"><option>12</option><option selected>24</option><option>48</option><option>96</option></select></label>
@@ -2318,8 +2398,11 @@
                 </select>
               </label>
             </div>
+            <details class="quiet-disclosure">
+              <summary>Additional card details</summary>
             <div class="format-strip">Optional cards: Year | Brand | Set | Player | Type | Parallel | Number</div>
             <textarea id="communityPostCards" rows="3" placeholder="2018-19 | Panini | Donruss Optic | Luka Doncic | Base | Mojo Red /88 | 177"></textarea>
+            </details>
             <div class="composer-actions">
               <label class="ghost-button image-import">
                 Photo
@@ -2678,6 +2761,8 @@
             <div><dt>Paid</dt><dd class="paid"></dd></div>
             <div><dt>Value</dt><dd class="value"></dd></div>
           </dl>
+          <details class="quiet-disclosure card-research-disclosure">
+            <summary>Research &amp; condition</summary>
           <dl class="source-values">
             <div><dt>eBay Est.</dt><dd class="ebay-value"></dd></div>
             <div><dt>CardHobby Est.</dt><dd class="cardhobby-value"></dd></div>
@@ -2698,6 +2783,7 @@
             <summary>Price trend</summary>
             <div class="card-price-chart"></div>
           </details>
+          </details>
           <p class="location"></p>
           <div class="actions">
             <button class="edit-button" type="button">Edit</button>
@@ -2708,9 +2794,13 @@
     </template>
 
     <script src="./set-catalog.js?v=3"></script>
-    <script src="./card-selectors.js?v=3"></script>
-    <script src="./app.js?v=98"></script>
+    <script src="./hci-selection-catalog.js?v=1"></script>
+    <script src="./card-selectors.js?v=5"></script>
+    <script src="./app.js?v=117"></script>
     <script src="./vendor/qrcode.min.js?v=1.0.0"></script>
-    <script src="./advanced.js?v=54"></script>
+    <script src="./advanced.js?v=57"></script>
+    <script src="./library.js?v=8"></script>
+    <script src="./subset-selectors.js?v=1"></script>
+    <script src="./catalog.js?v=4"></script>
   </body>
 </html>

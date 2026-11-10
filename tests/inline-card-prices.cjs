@@ -1,0 +1,53 @@
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+(async()=>{
+ const browser=await chromium.launch({channel:'chrome',headless:true});
+ try {
+  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.route('**/*.supabase.co/**',route=>route.abort());
+  await page.goto('file://'+path.resolve(__dirname,'../outputs/index.html'));
+  await page.waitForFunction(()=>window.cardLedgerBridge);
+  await page.evaluate(()=>{
+   account={name:'Inline Price Test',email:'inline-prices@example.invalid',role:'admin'};saveAccount();
+   cards=[{id:'inline-price-test',year:'2018-19',player:'Jimmy Butler',sport:'Basketball',brand:'Panini',setName:'Donruss Optic All Heart',parallel:'Green',condition:'Raw',quantity:1,paid:0,value:0,notes:'Keep this note',grade:'',marketSales:[{date:'2026-10-29',source:'ebay',value:200}]}];saveCards();
+   setActivePage('collection');setFocusWorkspaceView('collection','browse',{scroll:false});viewMode='grid';collectionExpanded=true;render();
+  });
+  const card=()=>page.locator('#gridList [data-card-id="inline-price-test"]');
+  await card().locator('[data-inline-price="paid"]').fill('75');
+  await card().locator('[data-inline-price="value"]').fill('150.5');
+  await card().getByRole('button',{name:'Save prices',exact:true}).click();
+  assert.deepEqual(await page.evaluate(()=>[cards[0].paid,cards[0].value,cards[0].valueMode,estimatedCardValue(cards[0]),cards[0].notes]),[75,150.5,'manual',150.5,'Keep this note']);
+  await card().locator('[data-inline-price="paid"]').fill('999');
+  await card().getByRole('button',{name:'Cancel',exact:true}).click();
+  assert.equal(await card().locator('[data-inline-price="paid"]').inputValue(),'75');
+  await card().locator('[data-inline-price="value"]').fill('0');
+  await card().locator('[data-inline-price="value"]').press('Enter');
+  assert.equal(await page.evaluate(()=>estimatedCardValue(cards[0])),0);
+  await card().locator('[data-inline-price="paid"]').fill('-1');
+  await card().getByRole('button',{name:'Save prices',exact:true}).click();
+  assert.equal(await page.evaluate(()=>cards[0].paid),75);
+  await card().locator('[data-inline-price="paid"]').press('Escape');
+  await card().locator('[data-inline-price="paid"]').fill('90');
+  await page.evaluate(()=>{window.originalSaveCards=saveCards;saveCards=()=>{throw new Error('Quota exceeded');};});
+  await card().getByRole('button',{name:'Save prices',exact:true}).click();
+  assert.equal(await page.evaluate(()=>cards[0].paid),75);
+  assert.match(await card().locator('[role=status]').innerText(),/Could not save/);
+  await page.evaluate(()=>{saveCards=window.originalSaveCards;render();});
+  await card().scrollIntoViewIfNeeded();
+  await page.screenshot({path:path.resolve(__dirname,'../work/inline-card-prices-desktop.png'),animations:'disabled'});
+  await page.reload();await page.waitForFunction(()=>window.cardLedgerBridge);
+  assert.deepEqual(await page.evaluate(()=>[cards[0].paid,cards[0].value]),[75,0]);
+  await page.setViewportSize({width:390,height:844});
+  await page.evaluate(()=>{setActivePage('collection');setFocusWorkspaceView('collection','browse',{scroll:false});viewMode='grid';render();});
+  await card().scrollIntoViewIfNeeded();
+  await card().locator('[data-inline-price="paid"]').fill('12999.5');
+  await card().locator('[data-inline-price="value"]').fill('15000.75');
+  await page.screenshot({path:path.resolve(__dirname,'../work/inline-card-prices-mobile.png'),animations:'disabled'});
+  assert.ok(await card().evaluate(element=>element.scrollWidth<=element.clientWidth+1));
+  assert.ok((await card().locator('[data-inline-price="paid"]').boundingBox()).width>=75);
+  assert.deepEqual(errors,[]);
+  console.log('PASS: inline paid/value save, manual override over sales, zero, cancel, negative validation, quota rollback, reload persistence and mobile layout.');
+ } finally {await browser.close();}
+})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,4 +1,4 @@
-const CACHE_NAME = "card-ledger-app-v98";
+const CACHE_NAME = "card-ledger-app-v132";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -8,8 +8,18 @@ const APP_SHELL = [
   "./advanced.css",
   "./set-catalog.js",
   "./card-selectors.js",
+  "./hci-selection-catalog.js",
   "./app.js",
   "./advanced.js",
+  "./library.js",
+  "./subset-selectors.js",
+  "./library.css",
+  "./catalog.html",
+  "./catalog.css",
+  "./catalog-section.css",
+  "./catalog-tools.css",
+  "./catalog.js",
+  "./concise-ui.css",
   "./vendor/qrcode.min.js",
   "./vendor/face-api/face-api.js",
   "./vendor/face-api/model/tiny_face_detector_model-weights_manifest.json",
@@ -43,7 +53,7 @@ const APP_SHELL = [
   "./assets/diy-players/jude-bellingham.jpg",
   "./assets/diy-players/shohei-ohtani.jpg"
 ];
-const NETWORK_FIRST_FILES = new Set(["", "index.html", "styles.css", "set-catalog.js", "card-selectors.js", "app.js", "advanced.js", "manifest.webmanifest", "service-worker.js"]);
+const NETWORK_FIRST_FILES = new Set(["", "index.html", "styles.css", "concise-ui.css", "library.js", "library.css", "set-catalog.js", "card-selectors.js", "app.js", "advanced.js", "manifest.webmanifest", "service-worker.js"]);
 
 function shouldUseNetworkFirst(request) {
   const url = new URL(request.url);

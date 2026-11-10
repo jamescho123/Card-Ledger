@@ -1,4 +1,19 @@
 .DS_Store
+# Keep private exports, local databases and image caches out of Git and snapshots.
+/hci-basketball-20260919/*
+!/hci-basketball-20260919/*.py
+!/hci-basketball-20260919/*.swift
+!/hci-basketball-20260919/*.command
+!/hci-basketball-20260919/scan-requirements.txt
+/hci-basketball-20260919/download_all.py
+/outputs/hci-selection-catalog.js
+/outputs/wembanyama-mosaic-gallery.html
+/work/
+__pycache__/
+*.py[cod]
+download-urls.txt
+download-manifest.json
+hci-basketball-20260919/scan-learning.sqlite3*
 .agents/
 skills-lock.json
 
@@ -12,6 +27,7 @@ supabase/.temp/
 
 # Web dependencies and generated checks
 node_modules/
+hci-basketball-20260919/.scan-deps/
 outputs/*-check.png
 outputs/sports-card-import.json
 
