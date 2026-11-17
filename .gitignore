@@ -1,4 +1,6 @@
 .DS_Store
+/dist/
+/.vercel/
 # Keep private exports, local databases and image caches out of Git and snapshots.
 /hci-basketball-20260919/*
 !/hci-basketball-20260919/*.py

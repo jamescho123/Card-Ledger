@@ -1,25 +1,19 @@
-# Source Backup - November 10, 2026
+# Source Backup and Deployment Status
 
-This branch is a PARTIAL source backup, not a deployable release and not a replacement for the original local working directory.
+Updated November 18, 2026.
 
-The current readable web source changes, new catalog and local scanner code, and available tests were copied onto the existing GitHub release history. The existing mobile source and other tracked files remain from that release; the original working tree reported no modifications to them.
+All seven previously pending iCloud-placeholder source files have been recovered and included in Git, including outputs/library.js and outputs/subset-selectors.js. The source backup is no longer blocked on these files. Existing mobile source and previously tracked files remain in the release history.
 
-## Pending Source Files
+This is an application-source backup, not a backup of private datasets or personal account data.
 
-These files were iCloud placeholders and could not be read during backup. They must be downloaded locally and backed up before removing any original working files or Git history:
+## Private Data Exclusions
 
-- outputs/library.js
-- outputs/subset-selectors.js
-- tests/scan-description-search.cjs
-- tests/brand-coverage.cjs
-- tests/split-card-rotation.cjs
-- tests/hci-card-identification.cjs
-- hci-basketball-20260919/validate_export.py
+HCI export archives, extracted metadata and images, generated HCI selection data, local databases, learned examples, private download links and manifests, personal collection imports, screenshots and evaluation outputs remain excluded. Do not delete these original local files on the assumption that GitHub contains them.
 
-The updated HTML references some pending scripts. Do not deploy this branch as-is.
+## Website Build
 
-## Intentionally Excluded
+`node scripts/build-vercel.mjs` produces the static site in dist/. It excludes private artifacts and replaces the private HCI dropdown catalog with an empty public fallback. The ordinary set catalog remains available; local source can still use the generated HCI selection catalog on the operator's computer.
 
-Private HCI export archives, extracted metadata and images, generated HCI selection data, local databases, learned scan examples, private download links and manifests, personal collection import files, local verification outputs and screenshots, and machine-specific historical download scripts are not uploaded. The generated selection catalog can be rebuilt locally with the included builder and private dataset.
+The HCI API/image matcher at 127.0.0.1:8765 is not deployed by this build. Remote visitors need a separately hosted backend for those features. Existing Supabase services remain external and are not migrated by this deployment.
 
-These exclusions are not instructions to delete the excluded files. The original dataset packages must remain intact. No local data was deleted by this backup.
+Verification: tests/vercel-build.cjs checks artifact exclusions, script loading, empty guest state, desktop/mobile workspace layout, the Chinese redirect, resource responses and browser exceptions. It does not claim live verification of payments, OAuth, private account data or the local HCI backend.
